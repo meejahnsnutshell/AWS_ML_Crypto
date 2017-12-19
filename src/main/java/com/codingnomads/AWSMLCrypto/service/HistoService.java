@@ -1,6 +1,7 @@
 package com.codingnomads.AWSMLCrypto.service;
 
 import com.codingnomads.AWSMLCrypto.mapper.TestTableMapper;
+import com.codingnomads.AWSMLCrypto.model.Data;
 import com.codingnomads.AWSMLCrypto.model.HistoPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,13 @@ public class HistoService {
         HistoPojo histoPojo = restTemplate.getForObject(
                 "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG", HistoPojo.class);
         //insert data into database
-        mapper.insertData(histoPojo.getData());
+
+        Data[] dataobj = histoPojo.getData();
+        for ( Data item : dataobj) {
+            mapper.insertData(item);
+        }
+
+
         return histoPojo;
     }
 
