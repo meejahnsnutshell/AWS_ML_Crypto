@@ -11,8 +11,9 @@ import java.util.ArrayList;
 public interface TestTableMapper {
 
     public final String SELECT_ALL_TEST = "SELECT * FROM testtable";
-    public final String INSERT_DATA = "insert into `public`.`data` (time, closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto)" +
+    public final String INSERT_DATA = "insert into public.data ( time, closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto)" +
             "values (#{time}, #{close}, #{high}, #{low}, #{open},#{volumefrom}, #{volumeto})";
+
 
     @Select(SELECT_ALL_TEST)
     public ArrayList<Test> selectAllTest();
