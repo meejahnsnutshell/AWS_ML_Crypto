@@ -1,5 +1,6 @@
 package com.codingnomads.AWSMLCrypto.controller;
 
+import com.codingnomads.AWSMLCrypto.model.Data;
 import com.codingnomads.AWSMLCrypto.model.Test;
 import com.codingnomads.AWSMLCrypto.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class Controller {
     TestService testService;
 
     @RequestMapping("/test")
-    public ArrayList<Test> selectingAll (){
+    public ArrayList<Data> selectingAll (){
         return testService.selectAll();
     }
 
