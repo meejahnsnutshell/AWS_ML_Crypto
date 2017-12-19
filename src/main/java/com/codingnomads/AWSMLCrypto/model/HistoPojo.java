@@ -1,5 +1,7 @@
 package com.codingnomads.AWSMLCrypto.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * created by Jialor Cheung on 12/19/17
  */
@@ -18,7 +20,11 @@ public class HistoPojo {
     public HistoPojo() {
     }
 
-    public HistoPojo(String response, Integer type, Boolean aggregated, Data[] data, Long timeTo, Long timeFrom, Boolean firstVolumeInArray, ConversionType conversionType) {
+    public HistoPojo(@JsonProperty("Response")String response, @JsonProperty("Type") Integer type,
+                     @JsonProperty("Aggregated") Boolean aggregated, @JsonProperty("Data") Data[] data,
+                     @JsonProperty("TimeTo") Long timeTo, @JsonProperty("TimeFrom") Long timeFrom,
+                     @JsonProperty("FirstValueInArray") Boolean firstVolumeInArray,
+                     @JsonProperty("ConversionType") ConversionType conversionType) {
         this.response = response;
         this.type = type;
         this.aggregated = aggregated;

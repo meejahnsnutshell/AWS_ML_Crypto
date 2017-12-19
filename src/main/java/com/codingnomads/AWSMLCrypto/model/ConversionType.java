@@ -1,5 +1,7 @@
 package com.codingnomads.AWSMLCrypto.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * created by Jialor Cheung on 12/19/17
  */
@@ -12,7 +14,7 @@ public class ConversionType {
     public ConversionType() {
     }
 
-    public ConversionType(String type, String conversionSymbol) {
+    public ConversionType(@JsonProperty("type")String type,@JsonProperty("conversionSymbol") String conversionSymbol) {
         this.type = type;
         this.conversionSymbol = conversionSymbol;
     }

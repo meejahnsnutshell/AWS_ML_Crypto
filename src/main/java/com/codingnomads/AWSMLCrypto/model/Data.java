@@ -1,5 +1,7 @@
 package com.codingnomads.AWSMLCrypto.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * created by Jialor Cheung on 12/19/17
  */
@@ -17,7 +19,9 @@ public class Data {
     public Data() {
     }
 
-    public Data(Integer time, Double close, Double high, Double low, Double open, Double volumeFrom, Double volumeTo) {
+    public Data(@JsonProperty("time")Integer time,@JsonProperty("close") Double close,@JsonProperty("high") Double high,
+                @JsonProperty("low") Double low,@JsonProperty("open") Double open,@JsonProperty("volumefrom") Double volumeFrom,
+                @JsonProperty("volumeto") Double volumeTo) {
         this.time = time;
         this.close = close;
         this.high = high;
