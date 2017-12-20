@@ -28,30 +28,44 @@ public class HistoService {
         HistoPojo histoPojo = restTemplate.getForObject(
                 "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG", HistoPojo.class);
         //insert data into database
-
-        Data[] dataobj = histoPojo.getData();
-        for ( Data item : dataobj) {
-            mapper.insertData(item);
-        }
-
-
+        insertHistoData(histoPojo.getData());
         return histoPojo;
     }
 
-    //TODO Possibly add after HistoDay is fully functional
-//    public HistoPojo getHistoHour() {
-//
-//        HistoPojo histoPojo = restTemplate.getForObject(
-//                "https://min-api.cryptocompare.com/data/histohour", HistoPojo.class);
-//        return histoPojo;
-//    }
-//
-//    public HistoPojo getHistoMin() {
-//
-//        HistoPojo histoPojo = restTemplate.getForObject(
-//                "https://min-api.cryptocompare.com/data/histominute", HistoPojo.class);
-//        return histoPojo;
-//    }
+    public HistoPojo getHistoHour() {
+
+        HistoPojo histoPojo = restTemplate.getForObject(
+                "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
+        insertHistoData(histoPojo.getData());
+        return histoPojo;
+    }
+
+    public HistoPojo getHistoMin() {
+
+        HistoPojo histoPojo = restTemplate.getForObject(
+                "https://min-api.cryptocompare.com/data/histominute?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
+        insertHistoData(histoPojo.getData());
+        return histoPojo;
+    }
+
+    //method to check if data exists in DB and if not insert data
+    public void insertHistoData (Data[] data){
+
+        Integer time;
+
+        for(Data item: data){
+
+            try {
+                time = mapper.getTime(item.getTime());
+            } catch (Exception e) {
+                time = null;
+            }
+            // check to see if the time already exists in our DB
+            if (time == null) {
+                mapper.insertData(item);
+            }
+        }
+    }
 
     public HistoPojo getBackload() {
 
@@ -85,5 +99,4 @@ public class HistoService {
 //
         return histoPojo;
     }
-
 }

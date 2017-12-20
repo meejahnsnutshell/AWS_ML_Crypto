@@ -24,15 +24,15 @@ class HistoController {
     }
 
     //TODO Possibly add after HistoDay is fully functional
-//    @RequestMapping("/hour")
-//    public HistoPojo getHistoHour(){
-//        return histoService.getHistoHour();
-//    }
-//
-//    @RequestMapping("/min")
-//    public HistoPojo getHistoMin(){
-//        return histoService.getHistoMin();
-//    }
+    @RequestMapping("/hour")
+    public HistoPojo getHistoHour(){
+        return histoService.getHistoHour();
+    }
+
+    @RequestMapping("/min")
+    public HistoPojo getHistoMin(){
+        return histoService.getHistoMin();
+    }
 
     @RequestMapping("/backload")
     public HistoPojo backloader(){
