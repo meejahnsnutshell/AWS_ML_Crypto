@@ -67,37 +67,28 @@ public class HistoService {
         }
     }
 
+    /**
+     * This method is used after the initial getHisto call is made, to fill in missing data between the last
+     * historical data point and the first data point of the real-time call.
+     * @return
+     */
     public HistoPojo getBackload() {
+        // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
+        long latestTime = (mapper.selectLatestTime()) / 3600;
 
-        //rest API call - need to make limit a url queryparam that's determined by the last time stamp (TimeTo)
-        // in the db, so it only goes back that far
-        // Seems we can't say the time to start from (ie anything other than right now) so this and real time
-        // will have to start at the exact same time to avoid any gaps in data, or we run this multiple times
-        // until it can't find any more missing timestamps
-        // currently written for time in mins (change to hours if that's what we end up using)
+        // get current time (in ms, convert to secs)
+        long currentTimeSec =(long) (System.currentTimeMillis() * .001);
+        // convert to hours
+        long currentTimeHrs = currentTimeSec / 3600;
 
-        // get the last time that data was captured(in unixtime-seconds), convert to mins
-        long latestTime = mapper.selectLatestTime();
-
-        // get current time in ms, convert to mins
-        // not sure how to handle switch over to real time data so we don't miss a minute or double up on a min
-        long currentTime = (long) ((System.currentTimeMillis() * .001) / 60);
-        System.out.println(currentTime);
-
-        // # of time increments between latest and current time (here we're using mins)
-        long timeDiff = (currentTime - latestTime);
+        // # of time increments between latest and current time (here we're using hrs)
+        long timeDiff = (currentTimeHrs - latestTime);
 
         // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
         HistoPojo histoPojo = restTemplate.getForObject(
-                domain + "histoday?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG", HistoPojo.class);
-//        //insert data into database
-//
-//        Data[] dataobj = histoPojo.getData();
-//        for ( Data item : dataobj) {
-//            mapper.insertData(item);
-//        }
-//
-//
+                domain + "histominute?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
+                HistoPojo.class);
+//      insertHistoData(histoPojo.getData());
         return histoPojo;
     }
 }
