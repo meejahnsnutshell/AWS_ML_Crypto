@@ -20,13 +20,13 @@ public class HistoService {
     @Autowired
     TestTableMapper mapper;
 
-    String endpoint = "https://min-api.cryptocompare.com/data/";
+    String domain = "https://min-api.cryptocompare.com/data/";
 
     public HistoPojo getHistoDay() {
 
         //rest API call
         HistoPojo histoPojo = restTemplate.getForObject(
-                "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG", HistoPojo.class);
+                domain + "histoday?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG", HistoPojo.class);
         //insert data into database
         insertHistoData(histoPojo.getData());
         return histoPojo;
@@ -35,7 +35,7 @@ public class HistoService {
     public HistoPojo getHistoHour() {
 
         HistoPojo histoPojo = restTemplate.getForObject(
-                "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
+                domain + "histohour?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
         insertHistoData(histoPojo.getData());
         return histoPojo;
     }
@@ -43,7 +43,7 @@ public class HistoService {
     public HistoPojo getHistoMin() {
 
         HistoPojo histoPojo = restTemplate.getForObject(
-                "https://min-api.cryptocompare.com/data/histominute?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
+                domain + "histominute?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
         insertHistoData(histoPojo.getData());
         return histoPojo;
     }
@@ -70,10 +70,11 @@ public class HistoService {
     public HistoPojo getBackload() {
 
         //rest API call - need to make limit a url queryparam that's determined by the last time stamp (TimeTo)
-        // in the db, so it only goes back that far plus the time increment we're using (minutes, hours, etc)
+        // in the db, so it only goes back that far
         // Seems we can't say the time to start from (ie anything other than right now) so this and real time
-        // will have to start at the exact same time to avoid any gaps in data
-        // want all time in mins (if that's the call we end up using)
+        // will have to start at the exact same time to avoid any gaps in data, or we run this multiple times
+        // until it can't find any more missing timestamps
+        // currently written for time in mins (change to hours if that's what we end up using)
 
         // get the last time that data was captured(in unixtime-seconds), convert to mins
         long latestTime = mapper.selectLatestTime();
@@ -88,7 +89,7 @@ public class HistoService {
 
         // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
         HistoPojo histoPojo = restTemplate.getForObject(
-                endpoint + "histoday?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG", HistoPojo.class);
+                domain + "histoday?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG", HistoPojo.class);
 //        //insert data into database
 //
 //        Data[] dataobj = histoPojo.getData();
