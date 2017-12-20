@@ -34,4 +34,9 @@ class HistoController {
 //        return histoService.getHistoMin();
 //    }
 
+    @RequestMapping("/backload")
+    public HistoPojo backloader(){
+        return histoService.getBackload();
+    }
+
 }

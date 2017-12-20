@@ -20,6 +20,8 @@ public class HistoService {
     @Autowired
     TestTableMapper mapper;
 
+    String endpoint = "https://min-api.cryptocompare.com/data/";
+
     public HistoPojo getHistoDay() {
 
         //rest API call
@@ -50,5 +52,38 @@ public class HistoService {
 //                "https://min-api.cryptocompare.com/data/histominute", HistoPojo.class);
 //        return histoPojo;
 //    }
+
+    public HistoPojo getBackload() {
+
+        //rest API call - need to make limit a url queryparam that's determined by the last time stamp (TimeTo)
+        // in the db, so it only goes back that far plus the time increment we're using (minutes, hours, etc)
+        // Seems we can't say the time to start from (ie anything other than right now) so this and real time
+        // will have to start at the exact same time to avoid any gaps in data
+        // want all time in mins (if that's the call we end up using)
+
+        // get the last time that data was captured(in unixtime-seconds), convert to mins
+        long latestTime = mapper.selectLatestTime();
+
+        // get current time in ms, convert to mins
+        // not sure how to handle switch over to real time data so we don't miss a minute or double up on a min
+        long currentTime = (long) ((System.currentTimeMillis() * .001) / 60);
+        System.out.println(currentTime);
+
+        // # of time increments between latest and current time (here we're using mins)
+        long timeDiff = (currentTime - latestTime);
+
+        // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
+        HistoPojo histoPojo = restTemplate.getForObject(
+                endpoint + "histoday?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG", HistoPojo.class);
+//        //insert data into database
+//
+//        Data[] dataobj = histoPojo.getData();
+//        for ( Data item : dataobj) {
+//            mapper.insertData(item);
+//        }
+//
+//
+        return histoPojo;
+    }
 
 }
