@@ -1,7 +1,6 @@
 package com.codingnomads.AWSMLCrypto.mapper;
 
 import com.codingnomads.AWSMLCrypto.model.Data;
-import com.codingnomads.AWSMLCrypto.model.Test;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -14,6 +13,7 @@ public interface TestTableMapper {
     public final String GET_TIME = "select time from data where time = #{time}";
     public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, time)" +
             "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
+    public final String SELECT_LATEST_TIME = "select time from data where time = (select max(time) from data)";
 
 
 
@@ -25,5 +25,8 @@ public interface TestTableMapper {
 
     @Select(INSERT_DATA)
     public void insertData(Data data);
+
+    @Select(SELECT_LATEST_TIME)
+    public int selectLatestTime();
 
 }
