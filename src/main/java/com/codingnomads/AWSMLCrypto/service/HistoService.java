@@ -33,7 +33,7 @@ public class HistoService {
     public HistoPojo getHistoHour() {
 
         HistoPojo histoPojo = restTemplate.getForObject(
-                "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
+                "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG&allData=true", HistoPojo.class);
         insertHistoData(histoPojo.getData());
         return histoPojo;
     }
