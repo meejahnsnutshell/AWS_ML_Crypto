@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @Mapper
 public interface TestTableMapper {
@@ -14,6 +15,7 @@ public interface TestTableMapper {
     public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, time)" +
             "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
     public final String SELECT_LATEST_TIME = "select time from data where time = (select max(time) from data)";
+    public final String GET_MOST_RECENT_ENTRY = "select * from data where time = (select max(time) from data)";
 
 
 
@@ -28,5 +30,8 @@ public interface TestTableMapper {
 
     @Select(SELECT_LATEST_TIME)
     public int selectLatestTime();
+
+    @Select(GET_MOST_RECENT_ENTRY)  // return object as map of strings to meet aws requirements
+    public Map<String, String> getMostRecentEntry();
 
 }

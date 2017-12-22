@@ -75,7 +75,6 @@ public class HistoService {
     public HistoPojo getBackload() {
         // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
         long latestTime = (mapper.selectLatestTime()) / 3600;
-
         // get current time (in ms, convert to secs)
         long currentTimeSec =(long) (System.currentTimeMillis() * .001);
         // convert to hours
@@ -86,9 +85,9 @@ public class HistoService {
 
         // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
         HistoPojo histoPojo = restTemplate.getForObject(
-                domain + "histominute?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
+                domain + "histohour?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
                 HistoPojo.class);
-//      insertHistoData(histoPojo.getData());
+        insertHistoData(histoPojo.getData());
         return histoPojo;
     }
 }
