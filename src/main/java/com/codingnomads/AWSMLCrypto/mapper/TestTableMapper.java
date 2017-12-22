@@ -16,6 +16,8 @@ public interface TestTableMapper {
             "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
     public final String SELECT_LATEST_TIME = "select time from data where time = (select max(time) from data)";
     public final String GET_MOST_RECENT_ENTRY = "select * from data where time = (select max(time) from data)";
+    public final String SELECT_CLOSEVALUE_TIME_FROM_LATEST_ENTRY = "select closevalue, time from data where time = (select max(time) from data)";
+    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where time = (select max(time) from data)";
 
 
 
@@ -33,5 +35,11 @@ public interface TestTableMapper {
 
     @Select(GET_MOST_RECENT_ENTRY)  // return object as map of strings to meet aws requirements
     public Map<String, String> getMostRecentEntry();
+
+    @Select(SELECT_CLOSEVALUE_TIME_FROM_LATEST_ENTRY)  // return object as map of strings to meet aws requirements
+    public Map<String, String> selectCloseValueTimeFromMostRecentEntry();
+
+    @Select(SELECT_CLOSEVALUE_FROM_LATEST_ENTRY)
+    public int selectCloseValueFromLatestEntry();
 
 }
