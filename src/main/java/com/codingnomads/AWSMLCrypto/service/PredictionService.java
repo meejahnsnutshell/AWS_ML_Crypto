@@ -1,38 +1,33 @@
 package com.codingnomads.AWSMLCrypto.service;
 
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.machinelearning.AbstractAmazonMachineLearning;
 import com.amazonaws.services.machinelearning.AmazonMachineLearningClient;
-import com.amazonaws.services.machinelearning.internal.PredictEndpointHandler;
 import com.amazonaws.services.machinelearning.model.*;
-import com.amazonaws.services.machinelearning.model.transform.CreateRealtimeEndpointRequestProtocolMarshaller;
 import com.codingnomads.AWSMLCrypto.mapper.TestTableMapper;
+import com.codingnomads.AWSMLCrypto.model.PredictPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
 /**
  * created by Meghan Boyce on 12/22/17
  *
- * will need these classes to get results of creating an endpoint: CreateRealtimeEndpointResult/Request
  */
 
 @Service
 public class PredictionService extends AbstractAmazonMachineLearning {
 
     @Autowired
-    RestTemplate restTemplate;
-
-    @Autowired
     TestTableMapper mapper;
 
-    Prediction prediction;
     PredictResult predictResult;
 
+    PredictPojo predictPojo;
+
     /**
-     * first iteration of the real time prediction method.. creating model and endpoint in aws console
+     * second iteration of the real time prediction method.. creating model and endpoint in aws console
+     * saving results to redshift db (predictions)
      * @param
      */
     public PredictResult getRealTimePrediction(){
@@ -40,8 +35,6 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         String predictionTime = String.valueOf(mapper.selectLatestTime() + 3600);
         // select time (next hour) & openvalue (previous hour's closevalue)
         Map<String,String> record = mapper.selectCloseValueTimeFromMostRecentEntry();
-
-        //try manually adding items
         String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
 
         PredictRequest predictRequest = new PredictRequest()
@@ -53,15 +46,21 @@ public class PredictionService extends AbstractAmazonMachineLearning {
                 //.withRecord(record);
                 .addRecordEntry("time", predictionTime)
                 .addRecordEntry("openvalue", recordOpenValue);
-        // predictRequest.setMLModelId("ml-74ZaWAEUNCm");
-        // predictRequest.setPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com");
-        // predictRequest.setRecord(record);
 
         AmazonMachineLearningClient client = new AmazonMachineLearningClient();
+        // predict method returns PredictResult object -- how to use my pojo when inserting into db?
         predictResult = client.predict(predictRequest);
-        //float result = prediction.getPredictedValue();
-        //predictResult = predictResult.getPrediction();
 
+        //mapper.insertTime(predictionTime);
+        //String amznrequestId = predictResult.getSdkResponseMetadata().getRequestId();
+
+        // save results to db
+        insertPredictResult(predictResult);
         return predictResult;
+    }
+
+    //method to insert prediction data in db
+    public void insertPredictResult (PredictResult result){
+        mapper.insertPredictData(result);
     }
 }

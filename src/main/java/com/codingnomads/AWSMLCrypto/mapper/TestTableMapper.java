@@ -1,5 +1,6 @@
 package com.codingnomads.AWSMLCrypto.mapper;
 
+import com.amazonaws.services.machinelearning.model.PredictResult;
 import com.codingnomads.AWSMLCrypto.model.Data;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -18,8 +19,9 @@ public interface TestTableMapper {
     public final String GET_MOST_RECENT_ENTRY = "select * from data where time = (select max(time) from data)";
     public final String SELECT_CLOSEVALUE_TIME_FROM_LATEST_ENTRY = "select closevalue, time from data where time = (select max(time) from data)";
     public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where time = (select max(time) from data)";
-
-
+    public final String INSERT_PREDICT_DATA = "insert into predictions (requestDate, amznRequestId, modelType, highValuePredict) " +
+            "values (#{Date}, #{x-amzn-RequestId}, #{PredictiveModelType}, #{PredictedValue})";
+    public final String INSERT_TIME = "insert into predictions (time) values (#{predictionTime})";
 
     @Select(SELECT_ALL_TEST)
     public ArrayList<Data> selectAllTest();
@@ -41,5 +43,11 @@ public interface TestTableMapper {
 
     @Select(SELECT_CLOSEVALUE_FROM_LATEST_ENTRY)
     public int selectCloseValueFromLatestEntry();
+
+    @Select(INSERT_PREDICT_DATA)
+    public void insertPredictData(PredictResult predictResult);
+
+    @Select(INSERT_TIME)
+    public void insertTime(int time);
 
 }

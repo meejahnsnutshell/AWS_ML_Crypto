@@ -79,11 +79,10 @@ public class HistoService {
         long currentTimeSec =(long) (System.currentTimeMillis() * .001);
         // convert to hours
         long currentTimeHrs = currentTimeSec / 3600;
-
         // # of time increments between latest and current time (here we're using hrs)
         long timeDiff = (currentTimeHrs - latestTime);
 
-        // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
+        // call the API w/ limit = timeDiff (this specifies # of time increments to go back and get)
         HistoPojo histoPojo = restTemplate.getForObject(
                 domain + "histohour?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
                 HistoPojo.class);
