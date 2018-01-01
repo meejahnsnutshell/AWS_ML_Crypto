@@ -20,8 +20,9 @@ public interface TestTableMapper {
     public final String GET_MOST_RECENT_ENTRY = "select * from data where time = (select max(time) from data)";
     public final String SELECT_CLOSEVALUE_TIME_FROM_LATEST_ENTRY = "select closevalue, time from data where time = (select max(time) from data)";
     public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where time = (select max(time) from data)";
-    public final String INSERT_PREDICT_DATA = "insert into predictions (requestDate, amznRequestId, modelType, highValuePredict) " +
-            "values (#{Date}, #{x-amzn-RequestId}, #{PredictiveModelType}, #{PredictedValue})";
+    public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, modeltype, " +
+            "highValuepredict, coinid, time) values (#{requestDate}, #{amznRequestId}, #{modelType}, " +
+            "#{highValuePredict}, #{coinId}, #{time})";
     public final String INSERT_TIME = "insert into predictions (time) values (#{predictionTime})";
 
     @Select(SELECT_ALL_TEST)
