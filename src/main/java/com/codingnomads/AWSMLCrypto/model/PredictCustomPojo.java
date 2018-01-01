@@ -1,9 +1,6 @@
 package com.codingnomads.AWSMLCrypto.model;
 
-import com.amazonaws.internal.SdkInternalMap;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Set;
 
 public class PredictCustomPojo {
 
