@@ -2,6 +2,7 @@ package com.codingnomads.AWSMLCrypto.mapper;
 
 import com.amazonaws.services.machinelearning.model.PredictResult;
 import com.codingnomads.AWSMLCrypto.model.Data;
+import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -45,7 +46,7 @@ public interface TestTableMapper {
     public int selectCloseValueFromLatestEntry();
 
     @Select(INSERT_PREDICT_DATA)
-    public void insertPredictData(PredictResult predictResult);
+    public void insertPredictData(PredictCustomPojo predictResult);
 
     @Select(INSERT_TIME)
     public void insertTime(int time);

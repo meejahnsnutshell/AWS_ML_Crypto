@@ -1,8 +1,11 @@
 package com.codingnomads.AWSMLCrypto.model;
 
+import com.amazonaws.internal.SdkInternalMap;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PredictPojo {
+import java.util.Set;
+
+public class PredictCustomPojo {
 
     private String requestDate;
     private String amznRequestId;
@@ -11,16 +14,19 @@ public class PredictPojo {
     private int coinId;
     private int time;
 
-    public PredictPojo(@JsonProperty("Date")String requestDate,
-                       @JsonProperty("x-amzn-RequestId") String amznRequestId,
-                       @JsonProperty("PredictiveModelType") String modelType,
-                       @JsonProperty("predictedValue") double highValuePredict,
-                       @JsonProperty("coinId") int coinId) {
+    public PredictCustomPojo(@JsonProperty("Date")String requestDate,
+                             @JsonProperty("x-amzn-RequestId") String amznRequestId,
+                             //@JsonProperty("PredictiveModelType") String modelType,
+                             @JsonProperty("predictedValue") double highValuePredict,
+                             @JsonProperty("coinId") int coinId) {
         this.requestDate = requestDate;
         this.amznRequestId = amznRequestId;
-        this.modelType = modelType;
+        // this.modelType = modelType;
         this.highValuePredict = highValuePredict;
         this.coinId = coinId;
+    }
+
+    public PredictCustomPojo() {
     }
 
     public String getRequestDate() {
@@ -61,5 +67,13 @@ public class PredictPojo {
 
     public void setCoinId(int coinId) {
         this.coinId = coinId;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 }

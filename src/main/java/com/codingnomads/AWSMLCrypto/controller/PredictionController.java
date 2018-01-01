@@ -1,6 +1,7 @@
 package com.codingnomads.AWSMLCrypto.controller;
 
 import com.amazonaws.services.machinelearning.model.PredictResult;
+import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import com.codingnomads.AWSMLCrypto.service.PredictionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ public class PredictionController {
     PredictionService predictionService;
 
     @RequestMapping("/realtime")
-    public PredictResult realTimePrediction(){
+    public PredictCustomPojo realTimePrediction(){
         return predictionService.getRealTimePrediction();
     }
 }
