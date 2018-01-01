@@ -1,6 +1,5 @@
 package com.codingnomads.AWSMLCrypto.controller;
 
-import com.amazonaws.services.machinelearning.model.PredictResult;
 import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import com.codingnomads.AWSMLCrypto.service.PredictionService;
 import org.springframework.beans.factory.annotation.Autowired;
