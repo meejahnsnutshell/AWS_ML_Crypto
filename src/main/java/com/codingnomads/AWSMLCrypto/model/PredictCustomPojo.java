@@ -2,6 +2,10 @@ package com.codingnomads.AWSMLCrypto.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Created by Meghan Boyce on 12/26/17
+ */
+
 public class PredictCustomPojo {
 
     private String requestDate;
