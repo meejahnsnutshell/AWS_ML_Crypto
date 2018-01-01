@@ -13,7 +13,6 @@ import java.util.Map;
 
 /**
  * created by Meghan Boyce on 12/22/17
- *
  */
 
 @Service
@@ -22,53 +21,57 @@ public class PredictionService extends AbstractAmazonMachineLearning {
     @Autowired
     TestTableMapper mapper;
 
-    PredictResult predictResult;
-
-    PredictCustomPojo predictPojo;
-
     /**
      * second iteration of the real time prediction method.. creating model and endpoint in aws console
-     * saving results to redshift db (predictions)
+     * saving results to redshift db (predictions table)
+     *
      * @param
      */
-    public PredictCustomPojo getRealTimePrediction(){
-        // get latest time plus 1 hour
+    public PredictCustomPojo getRealTimePrediction() {
+        // get latest time (used to query for coinid)
+        int latestTime = mapper.selectLatestTime();
+        // add 1 hour (used to insert into prediction db)
         int predictionTimeInt = mapper.selectLatestTime() + 3600;
+        // convert to String (used in prediction request)
         String predictionTimeStr = String.valueOf(predictionTimeInt);
-        //String predictionTime = String.valueOf(mapper.selectLatestTime() + 3600);
-        // select time (next hour) & openvalue (previous hour's closevalue)
-        Map<String,String> record = mapper.selectCloseValueTimeFromMostRecentEntry(); // not using this but like this way much better
+        // select previous hour's closevalue & give to AWS as next hour's openvalue
         String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
 
+        // create AWS prediction request
         PredictRequest predictRequest = new PredictRequest()
                 // identify model to use (created in the AWS console)
                 .withMLModelId("ml-74ZaWAEUNCm")
                 // identify prediction endpoint (also created in the AWS console)
                 .withPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com")
-                // identify record values
-                //.withRecord(record);
+                // give AWS known data for prediction entry
                 .addRecordEntry("time", predictionTimeStr)
                 .addRecordEntry("openvalue", recordOpenValue);
 
+        // create AWS ML client
         AmazonMachineLearningClient client = new AmazonMachineLearningClient();
-        predictResult = client.predict(predictRequest);
+        // Use client to get the results of the prediction
+        PredictResult predictResult = client.predict(predictRequest);
 
-        // use custom results POJO to extract desired data points from AWS response
+        // use custom results POJO to extract desired data points from predictResult
         PredictCustomPojo predictPojo = new PredictCustomPojo();
-            predictPojo.setRequestDate(predictResult.getSdkHttpMetadata().getHttpHeaders().get("Date"));
-            predictPojo.setAmznRequestId(predictResult.getSdkResponseMetadata().getRequestId());
-            predictPojo.setModelType(predictResult.getPrediction().getDetails().get("PredictiveModelType"));
-            predictPojo.setHighValuePredict(predictResult.getPrediction().getPredictedValue());
-//          predictPojo.setCoinId();  // todo get coin id - still needs to be added to db
-            predictPojo.setTime(predictionTimeInt);
+
+        predictPojo.setRequestDate(predictResult.getSdkHttpMetadata().getHttpHeaders().get("Date"));
+        predictPojo.setAmznRequestId(predictResult.getSdkResponseMetadata().getRequestId());
+        predictPojo.setModelType(predictResult.getPrediction().getDetails().get("PredictiveModelType"));
+        predictPojo.setHighValuePredict(predictResult.getPrediction().getPredictedValue());
+        predictPojo.setCoinId(mapper.getCoinId(latestTime));  // todo test after coinid column added to data table
+        predictPojo.setTime(predictionTimeInt);
 
         // insert results in db
         insertPredictResult(predictPojo);
         return predictPojo;
     }
 
-    //method to insert prediction data in db
-    public void insertPredictResult (PredictCustomPojo result){
+    /**
+     * Method to insert prediction data in db
+     * @param result
+     */
+    public void insertPredictResult(PredictCustomPojo result) {
         mapper.insertPredictData(result);
     }
 }
