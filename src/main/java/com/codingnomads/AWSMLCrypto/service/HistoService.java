@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
+
 /**
  * Service methods for cryptocompare api calls.
  */
@@ -22,31 +24,25 @@ public class HistoService {
 
     String domain = "https://min-api.cryptocompare.com/data/";
 
-    public HistoPojo getHistoDay() {
-
-        //rest API call
-        HistoPojo histoPojo = restTemplate.getForObject(
-                domain + "histoday?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG", HistoPojo.class);
-        //insert data into database
+    /**
+     * Creates a generic historical data api call from cryptocompare.com depending on the parameters included
+     * By default histohour is set as default historical data type, BTC is set as default fsym, USD is set as default tsym
+     *
+     * @return histopojo object from restfull api call
+     */
+    public HistoPojo getHistoData (String type, String fsym, String tsym, String String e, String extraParams, Boolean sign, Boolean tryConversion, Integer aggregrate,
+                                   Integer limit, Timestamp toTs, Boolean allData){
+        //create a generic HistoDataCall
+        GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym);
+        HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
         insertHistoData(histoPojo.getData());
         return histoPojo;
     }
 
-    public HistoPojo getHistoHour() {
-
-        HistoPojo histoPojo = restTemplate.getForObject(
-                "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=365&aggregate=1&e=CCCAGG&allData=true", HistoPojo.class);
-        insertHistoData(histoPojo.getData());
-        return histoPojo;
+    public HistoPojo getHistoDay(){
+        HistoPojo histoPojo =
     }
 
-    public HistoPojo getHistoMin() {
-
-        HistoPojo histoPojo = restTemplate.getForObject(
-                domain + "histominute?fsym=BTC&tsym=USD&limit=2000&aggregate=1&e=CCCAGG", HistoPojo.class);
-        insertHistoData(histoPojo.getData());
-        return histoPojo;
-    }
 
     //method to check if data exists in DB and if not insert data
     public void insertHistoData (Data[] data){

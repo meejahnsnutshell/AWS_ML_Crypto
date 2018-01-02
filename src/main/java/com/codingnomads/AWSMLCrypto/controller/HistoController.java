@@ -18,21 +18,20 @@ class HistoController {
     @Autowired
     HistoService histoService;
 
-    @RequestMapping("/day")
-    public HistoPojo getHistoDay(){
-        return histoService.getHistoDay();
+    @RequestMapping("/data")
+    public HistoPojo getHistoDay(){ return histoService.getHistoData("day","BTC","USD",);
     }
 
     //TODO Possibly add after HistoDay is fully functional
-    @RequestMapping("/hour")
-    public HistoPojo getHistoHour(){
-        return histoService.getHistoHour();
-    }
-
-    @RequestMapping("/min")
-    public HistoPojo getHistoMin(){
-        return histoService.getHistoMin();
-    }
+//    @RequestMapping("/hour")
+//    public HistoPojo getHistoHour(){
+//        return histoService.getHistoHour();
+//    }
+//
+//    @RequestMapping("/min")
+//    public HistoPojo getHistoMin(){
+//        return histoService.getHistoMin();
+//    }
 
     @RequestMapping("/backload")
     public HistoPojo backloader(){
