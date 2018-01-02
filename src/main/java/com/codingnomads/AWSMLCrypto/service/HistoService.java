@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 /**
  * Service methods for cryptocompare api calls.
@@ -30,27 +31,42 @@ public class HistoService {
      *
      * @return histopojo object from restfull api call
      */
-    public HistoPojo getHistoData (String type, String fsym, String tsym, String String e, String extraParams, Boolean sign, Boolean tryConversion, Integer aggregrate,
-                                   Integer limit, Timestamp toTs, Boolean allData){
+    public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
+                                  Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData){
         //create a generic HistoDataCall
-        GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym);
+        GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
+                aggregate, limit, toTs, allData);
         HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
-        insertHistoData(histoPojo.getData());
+        //check data
+
+        //insert data not in db
+//        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
+
         return histoPojo;
     }
 
-    public HistoPojo getHistoDay(){
-        HistoPojo histoPojo =
-    }
-
-
     //method to check if data exists in DB and if not insert data
-    public void insertHistoData (Data[] data){
+    public void insertHistoData (Data[] data, String fsym){
 
         Integer time;
+        int coinID;
+        ArrayList<Data> inDB;
+
+        switch (fsym){
+            case "BTC":
+                coinID = 1;
+                break;
+            case "ETH":
+                coinID = 2;
+                break;
+            default:
+                coinID =0;
+        }
+
+        inDB = mapper.getDataByCoinID(coinID);
 
         for(Data item: data){
-
+            item.setCoinid(coinID);
             try {
                 time = mapper.getTime(item.getTime());
             } catch (Exception e) {
@@ -61,6 +77,41 @@ public class HistoService {
                 mapper.insertData(item);
             }
         }
+    }
+
+    public ArrayList<Data> checkData (Data[]data, String fsym){
+
+        Integer time;
+        int coinID;
+        ArrayList<Data> inDB;
+        ArrayList<Data> notInDB = null;
+
+        switch (fsym){
+            case "BTC":
+                coinID = 1;
+                break;
+            case "ETH":
+                coinID = 2;
+                break;
+            default:
+                coinID =0;
+        }
+
+        inDB = mapper.getDataByCoinID(coinID);
+
+        for (Data item: data) {
+            for (Data checkDB : inDB) {
+                if (item.getTime() != checkDB.getTime()) {
+                    time = null;
+                    if (time == null) {
+                        notInDB.add(item);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return notInDB;
     }
 
     /**

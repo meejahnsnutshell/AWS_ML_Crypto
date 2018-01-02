@@ -11,9 +11,10 @@ public interface TestTableMapper {
 
     public final String SELECT_ALL_TEST = "SELECT * FROM data";
     public final String GET_TIME = "select time from data where time = #{time}";
-    public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, time)" +
-            "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
+    public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, time, coinid)" +
+            "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time}, #{coinid})";
     public final String SELECT_LATEST_TIME = "select time from data where time = (select max(time) from data)";
+    public final String GET_DATA_BY_COINID = "select * from data where coinid = #{coinid}";
 
 
 
@@ -28,5 +29,8 @@ public interface TestTableMapper {
 
     @Select(SELECT_LATEST_TIME)
     public int selectLatestTime();
+
+    @Select(GET_DATA_BY_COINID)
+    public ArrayList<Data> getDataByCoinID (int coinID);
 
 }

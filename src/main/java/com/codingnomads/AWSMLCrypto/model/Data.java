@@ -15,6 +15,7 @@ public class Data {
     private Double open;
     private Double volumeFrom;
     private Double volumeTo;
+    private Integer coinid;
 
     public Data() {
     }
@@ -85,5 +86,13 @@ public class Data {
 
     public void setVolumeTo(Double volumeTo) {
         this.volumeTo = volumeTo;
+    }
+
+    public Integer getCoinid() {
+        return coinid;
+    }
+
+    public void setCoinid(Integer coinid) {
+        this.coinid = coinid;
     }
 }

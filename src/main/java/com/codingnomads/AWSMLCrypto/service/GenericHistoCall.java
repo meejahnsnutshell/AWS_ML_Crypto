@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 /**
  * created by Jialor Cheung on 12/29/17
+ *
+ * Generic API call for all histo data calls
  */
 
 public class GenericHistoCall {
@@ -12,35 +14,14 @@ public class GenericHistoCall {
     String type = "histohour";
     String fsym = "BTC";
     String tsym = "USD";
-    String e;
-    String extraParams;
-    Boolean sign;
-    Boolean tryConversion;
-    Integer aggregrate;
-    Integer limit;
-    Timestamp toTs;
-    Boolean allData;
-
-//    public GenericHistoCall() {
-//    }
-
-    public GenericHistoCall(String type, String fsym, String tsym) {
-        this.type = type;
-        this.fsym = fsym;
-        this.tsym = tsym;
-    }
-
-    public GenericHistoCall(String e, String extraParams, Boolean sign, Boolean tryConversion, Integer aggregrate,
-                            Integer limit, Timestamp toTs, Boolean allData) {
-        this.e = e;
-        this.extraParams = extraParams;
-        this.sign = sign;
-        this.tryConversion = tryConversion;
-        this.aggregrate = aggregrate;
-        this.limit = limit;
-        this.toTs = toTs;
-        this.allData = allData;
-    }
+    String e = null;
+    String extraParams = null;
+    Boolean sign = null;
+    Boolean tryConversion = null;
+    Integer aggregrate = null;
+    Integer limit = null;
+    Timestamp toTs = null;
+    Boolean allData = null;
 
     public GenericHistoCall(String type, String fsym, String tsym, String e, String extraParams,
                             Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, Timestamp toTs,
@@ -154,6 +135,11 @@ public class GenericHistoCall {
         this.allData = allData;
     }
 
+    /**
+     * Method to create the url api call specific to the desired parameters
+     *
+     * @return  A string url built on defined parameters given to be used for the api call
+     */
     public String domainParams() {
         StringBuilder sb = new StringBuilder();
         sb.append(getDomain()).append(getType()).append("?fsym=").append(getFsym())
