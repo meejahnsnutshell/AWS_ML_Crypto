@@ -83,14 +83,14 @@ public class PredictionService extends AbstractAmazonMachineLearning {
      * Compare the two values and give them a score of some sort
      */
     public void analyzePrediction(){
-        // need a way to check the time, and then call the method at the appropriate time, or just make it part of
-        // the chron job that will be calling histohour every hour -- hold off on this part
-
-        // need a mapper (SQL) method to insert actualvalue into prediction table - started this
-
-        // need to calculate difference between the two values.. and return a % or difference (percent error)
+        // thinking this will be part of the cronjob that will be called every hour
+        // need the hour (time) in question
+        // get the actual high value for the previous hour now that it is available (via cryptocompare histohour response)
         double actualValue;
+        // use mapper (SQL) method to insert actual value into prediction table - started this
+        // get highvaluepredict using current hour (time) in question (mapper - sql)
         double predictValue = mapper.selectHighValuePredict();
+        // calculate %error between highvalue predict & actual
 //        double pctError = ((actualvalue - predictValue) / actualvalue) * 100;
         /**
          * how to get high value.. do we query the sql database for the last prediction? or do we pull the high
@@ -98,7 +98,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
          * this method won't be happening until an hour later..
          */
 
-        // insert that calculation into predictions table (score?)
+        // insert %error into predictions table
 
     }
 }
