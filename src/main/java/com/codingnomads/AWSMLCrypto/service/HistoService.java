@@ -36,7 +36,7 @@ public class HistoService {
     public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
                                   Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData){
 
-        ArrayList<Data> newData;
+//        ArrayList<Data> newData;
         //create a generic HistoDataCall
         GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
                 aggregate, limit, toTs, allData);
@@ -101,23 +101,28 @@ public class HistoService {
      * historical data point and the first data point of the real-time call.
      * @return
      */
-    public HistoPojo getBackload() {
+    public HistoPojo getBackload(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
+                                 Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData) {
         // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
         long latestTime = (mapper.selectLatestTime()) / 3600;
-
         // get current time (in ms, convert to secs)
         long currentTimeSec =(long) (System.currentTimeMillis() * .001);
         // convert to hours
         long currentTimeHrs = currentTimeSec / 3600;
-
         // # of time increments between latest and current time (here we're using hrs)
         long timeDiff = (currentTimeHrs - latestTime);
 
-        // call the API w/ limit = timeDiff (this specifies # of time increments we want to go back and get)
-        HistoPojo histoPojo = restTemplate.getForObject(
-                domain + "histominute?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
-                HistoPojo.class);
-//      insertHistoData(histoPojo.getData());
+        GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
+                aggregate, limit, toTs, allData);
+        genericHistoCall.setLimit((int)timeDiff);
+        HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
+        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
+
+//        // call the API w/ limit = timeDiff (this specifies # of time increments to go back and get)
+//        HistoPojo histoPojo = restTemplate.getForObject(
+//                domain + "histohour?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
+//                HistoPojo.class);
+//        insertHistoData(histoPojo.getData());
         return histoPojo;
     }
 
