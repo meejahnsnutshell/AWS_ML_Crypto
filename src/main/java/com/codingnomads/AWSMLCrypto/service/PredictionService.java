@@ -87,14 +87,22 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         // must run after getting the data for the latest hour
         // need the hour (time) in question
         Integer currentHour = mapper.selectLatestTime();
+
         // get the actual high value now that it is available - from datatable
-        double actualValue = mapper.selectHighValueActual(currentHour);
-        // use mapper (SQL) method to insert actual value into prediction table - started this
+//        double actualValue = mapper.selectHighValueActual(currentHour);
+
+        // for testing:
+        double actualValue = mapper.selectHighValueActualTest();
+
+        // use mapper (SQL) method to set actual value in prediction table
+        mapper.updateHighValueActual(actualValue, currentHour);
+
         // get highvaluepredict using current hour (time) in question (mapper - sql)
         double predictValue = mapper.selectHighValuePredict(currentHour);
+
         // calculate %error between highvalue predict & actual
         double pctError = ((actualValue - predictValue) / actualValue) * 100;
         // insert %error into predictions table
-        mapper.insertPercentError(pctError);
+        mapper.updatePcterror(pctError, currentHour);
     }
 }

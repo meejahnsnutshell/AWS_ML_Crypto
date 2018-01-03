@@ -21,4 +21,9 @@ public class PredictionController {
     public PredictCustomPojo realTimePrediction(){
         return predictionService.getRealTimePrediction();
     }
+
+    @RequestMapping("/analyze")
+    public void analyzeRealTimePrediction(){
+        predictionService.analyzePrediction();
+    }
 }
