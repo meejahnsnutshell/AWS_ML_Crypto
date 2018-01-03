@@ -74,4 +74,31 @@ public class PredictionService extends AbstractAmazonMachineLearning {
     public void insertPredictResult(PredictCustomPojo result) {
         mapper.insertPredictData(result);
     }
+
+    /**
+     * Method to analyze prediction results
+     * When last predicted hour has passed, call histohour to get the actual value
+     * But we'll be doing this for the real time data gatherer anyway.. so maybe it can work double duty and insert
+     * the value into both data and predictions tables..
+     * Compare the two values and give them a score of some sort
+     */
+    public void analyzePrediction(){
+        // need a way to check the time, and then call the method at the appropriate time, or just make it part of
+        // the chron job that will be calling histohour every hour -- hold off on this part
+
+        // need a mapper (SQL) method to insert actualvalue into prediction table - started this
+
+        // need to calculate difference between the two values.. and return a % or difference (percent error)
+        double actualValue;
+        double predictValue = mapper.selectHighValuePredict();
+//        double pctError = ((actualvalue - predictValue) / actualvalue) * 100;
+        /**
+         * how to get high value.. do we query the sql database for the last prediction? or do we pull the high
+         * value from the response at the time that we get the response.. no we'll have to get it from the db because
+         * this method won't be happening until an hour later..
+         */
+
+        // insert that calculation into predictions table (score?)
+
+    }
 }
