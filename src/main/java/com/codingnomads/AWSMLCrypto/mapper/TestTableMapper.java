@@ -4,6 +4,7 @@ import com.codingnomads.AWSMLCrypto.model.Data;
 import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
 @Mapper
 public interface TestTableMapper {
@@ -17,6 +18,8 @@ public interface TestTableMapper {
             "highValuepredict, coinid, unixtime) values (#{requestDate}, #{amznRequestId}, #{modelType}, " +
             "#{highValuePredict}, #{coinId}, #{time})";
     public final String GET_COINID = "select coinid from data where unixtime = #{time}";
+    public final String INSERT_HIGHVALUEACTUAL = "insert into predictions (highvalueactual) values (#{})"; // TODO: finish this
+    public final String SELECT_HIGHVALUEPREDICT = "select highvaluepredict from predictions where unixtime = (select max(unixtime) from predictions)";
 
     @Select(GET_TIME)
     public int getTime(int time);
@@ -35,5 +38,11 @@ public interface TestTableMapper {
 
     @Select(GET_COINID)
     public int getCoinId(int time);
+
+    @Select(INSERT_HIGHVALUEACTUAL)
+    public void insertHighValueActual();
+
+    @Select(SELECT_HIGHVALUEPREDICT)
+    public double selectHighValuePredict();
 
 }
