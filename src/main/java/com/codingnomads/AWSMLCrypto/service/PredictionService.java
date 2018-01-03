@@ -76,32 +76,27 @@ public class PredictionService extends AbstractAmazonMachineLearning {
     }
 
     /**
-     * Method to analyze prediction results
-     * When last predicted hour has passed, call histohour to get the actual value
-     * But we'll be doing this for the real time data gatherer anyway.. so maybe it can work double duty and insert
-     * the value into both data and predictions tables..
-     * Compare the two values and calculate percent error
+     * Method to determine accuracy of real-time predictions
      */
     public void analyzePrediction(){
         // thinking this will be part of the cronjob that will be called every hour,
         // must run after getting the data for the latest hour
-        // need the hour (time) in question
+
+        // get time for most recent prediction
         Integer currentHour = mapper.selectLatestTime();
 
-        // get the actual high value now that it is available - from datatable
-//        double actualValue = mapper.selectHighValueActual(currentHour);
+        // get actual high value for this time from datatable
+        double actualValue = mapper.selectHighValueActual(currentHour);
 
-        // for testing:
-        double actualValue = mapper.selectHighValueActualTest();
-
-        // use mapper (SQL) method to set actual value in prediction table
+        // update/set actual value in prediction table for record w/currentHour
         mapper.updateHighValueActual(actualValue, currentHour);
 
-        // get highvaluepredict using current hour (time) in question (mapper - sql)
+        // select highvaluepredict for currentHour
         double predictValue = mapper.selectHighValuePredict(currentHour);
 
         // calculate %error between highvalue predict & actual
         double pctError = ((actualValue - predictValue) / actualValue) * 100;
+
         // insert %error into predictions table
         mapper.updatePcterror(pctError, currentHour);
     }
