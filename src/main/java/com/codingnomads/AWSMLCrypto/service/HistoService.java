@@ -41,16 +41,15 @@ public class HistoService {
         GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
                 aggregate, limit, toTs, allData);
         HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
-        //checks data and separates out non existing data compared to DB into new data array
-        newData = checkData(histoPojo.getData(), genericHistoCall.getFsym());
+//        //checks data and separates out non existing data compared to DB into new data array
+//        newData = checkData(histoPojo.getData(), genericHistoCall.getFsym());
         //inserts new data into db
-        insertHistoData(newData, genericHistoCall.getFsym());
-
+        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
         return histoPojo;
     }
 
     //method to insert historical data into DB
-    public void insertHistoData (ArrayList<Data> data, String fsym){
+    public void insertHistoData (Data[] data, String fsym){
 
         int coinID = cryptoCurrencySelect(fsym);
 
@@ -61,30 +60,30 @@ public class HistoService {
         }
     }
 
-    //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
-    public ArrayList<Data> checkData (Data[]data, String fsym){
-
-        Integer time;
-        int coinID = cryptoCurrencySelect(fsym);
-        ArrayList<Data> inDB;
-        ArrayList<Data> notInDB = null;
-
-        inDB = mapper.getDataByCoinID(coinID);
-
-        for (Data item: data) {
-            for (Data checkDB : inDB) {
-                if (item.getTime() != checkDB.getTime()) {
-                    time = null;
-                    if (time == null) {
-                        notInDB.add(item);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return notInDB;
-    }
+//    //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
+//    public ArrayList<Data> checkData (Data[]data, String fsym){
+//
+//        Integer time;
+//        int coinID = cryptoCurrencySelect(fsym);
+//        ArrayList<Data> inDB;
+//        ArrayList<Data> notInDB = null;
+//
+//        inDB = mapper.getDataByCoinID(coinID);
+//
+//        for (Data item: data) {
+//            for (Data checkDB : inDB) {
+//                if (item.getTime() != checkDB.getTime()) {
+//                    time = null;
+//                    if (time == null) {
+//                        notInDB.add(item);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return notInDB;
+//    }
 
     /**
      * Method to select the correct coinID for database insertion or check based off of fsym variable
@@ -124,37 +123,34 @@ public class HistoService {
 
     //Checks API call of coins with DB and inserts new coins into DB
     public CoinOutput getCoin () {
-        ArrayList<Coin> newCoin;
         CoinOutput coin = restTemplate.getForObject("https://www.cryptocompare.com/api/data/coinlist/", CoinOutput.class);
-        newCoin = checkCoin(coin.getData());
-        insertCoin(newCoin);
+        insertCoin(coin.getData());
+
         return coin;
     }
 
-    //Checks DB for existing coin
-    public ArrayList<Coin> checkCoin(HashMap<String, Coin> data){
-        ArrayList<Coin> inDB;
-        ArrayList<Coin> notInDB=null;
-        inDB = mapper.getAllCoins();
-        String exist;
-
-        for (Coin item : data.values()){
-            for (Coin checkDB : inDB){
-                if (item.getName() != checkDB.getName()) {
-                    exist = null;
-                    if (exist == null) {
-                        notInDB.add(item);
-                        break;
-                    }
-                }
-            }
-        }
-        return notInDB;
-    }
+//    //Checks DB for existing coin
+//    public ArrayList<Coin> checkCoin(HashMap<String, Coin> data) throws NullPointerException{
+//        ArrayList<Coin> inDB;
+//        ArrayList<Coin> notInDB = null;
+//        inDB = mapper.getAllCoins();
+//        Boolean exist = false;
+//
+//        for (Coin item : data.values()) {
+//            for (Coin checkDB : inDB) {
+//                if (checkDB.getName().equals(item.getName())) {
+//                    exist = true;
+//                    break;
+//                }
+//                notInDB.add(item);
+//            }
+//        }
+//        return notInDB;
+//    }
 
     //method to insert coin information from api call
-    public void insertCoin (ArrayList<Coin> data){
-        for (Coin item : data){
+    public void insertCoin (CoinData data){
+        for (Coin item : data.values()){
             mapper.insertCoinInfo(item);
         }
     }
