@@ -14,14 +14,14 @@ public class GenericHistoCall {
     String type = "histohour";
     String fsym = "BTC";
     String tsym = "USD";
-    String e = null;
-    String extraParams = null;
-    Boolean sign = null;
-    Boolean tryConversion = null;
-    Integer aggregrate = null;
-    Integer limit = null;
-    Timestamp toTs = null;
-    Boolean allData = null;
+    String e = "CCCAGG";
+    String extraParams;
+    Boolean sign = false;
+    Boolean tryConversion = true;
+    Integer aggregrate = 1;
+    Integer limit;
+    Timestamp toTs;
+    Boolean allData = false;
 
     public GenericHistoCall(String type, String fsym, String tsym, String e, String extraParams,
                             Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, Timestamp toTs,
@@ -143,10 +143,7 @@ public class GenericHistoCall {
     public String domainParams() {
         StringBuilder sb = new StringBuilder();
         sb.append(getDomain()).append(getType()).append("?fsym=").append(getFsym())
-        .append("&tsym=").append(getTsym());
-        if (null != getE()) {
-            sb.append("&").append("e").append("=").append(getE());
-        }
+        .append("&tsym=").append(getTsym()).append("&e=").append(getE());
         if (null != getExtraParams()) {
             sb.append("&").append("extraParams").append("=").append(getExtraParams());
         }

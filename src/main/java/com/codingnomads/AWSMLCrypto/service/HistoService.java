@@ -45,57 +45,24 @@ public class HistoService {
         return histoPojo;
     }
 
-    //method to check if data exists in DB and if not insert data
+    //method to insert data into DB
     public void insertHistoData (Data[] data, String fsym){
 
-        Integer time;
-        int coinID;
-        ArrayList<Data> inDB;
-
-        switch (fsym){
-            case "BTC":
-                coinID = 1;
-                break;
-            case "ETH":
-                coinID = 2;
-                break;
-            default:
-                coinID =0;
-        }
-
-        inDB = mapper.getDataByCoinID(coinID);
+        int coinID = cryptoCurrencySelect(fsym);
 
         for(Data item: data){
             item.setCoinid(coinID);
-            try {
-                time = mapper.getTime(item.getTime());
-            } catch (Exception e) {
-                time = null;
-            }
-            // check to see if the time already exists in our DB
-            if (time == null) {
-                mapper.insertData(item);
-            }
+            mapper.insertData(item);
+
         }
     }
 
     public ArrayList<Data> checkData (Data[]data, String fsym){
 
         Integer time;
-        int coinID;
+        int coinID = cryptoCurrencySelect(fsym);
         ArrayList<Data> inDB;
         ArrayList<Data> notInDB = null;
-
-        switch (fsym){
-            case "BTC":
-                coinID = 1;
-                break;
-            case "ETH":
-                coinID = 2;
-                break;
-            default:
-                coinID =0;
-        }
 
         inDB = mapper.getDataByCoinID(coinID);
 
@@ -112,6 +79,28 @@ public class HistoService {
         }
 
         return notInDB;
+    }
+
+    /**
+     * Method to select the correct coinID for database insertion or check based off of fsym variable
+     * @param fsym  parameter of API call to select the type of crypto currency data to search for
+     * @return  integer corresponding to crypto currency ID in DB
+     */
+    public int cryptoCurrencySelect(String fsym){
+        int coinID;
+
+        switch (fsym){
+            case "BTC":
+                coinID = 1;
+                break;
+            case "ETH":
+                coinID = 2;
+                break;
+            default:
+                coinID = 0;
+        }
+
+        return coinID;
     }
 
     /**
