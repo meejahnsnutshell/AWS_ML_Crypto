@@ -1,4 +1,4 @@
-package com.codingnomads.AWSMLCrypto.service;
+package com.codingnomads.AWSMLCrypto.model;
 
 import java.sql.Timestamp;
 

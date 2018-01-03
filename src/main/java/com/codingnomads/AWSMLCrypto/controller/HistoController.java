@@ -1,6 +1,8 @@
 package com.codingnomads.AWSMLCrypto.controller;
 
 
+import com.codingnomads.AWSMLCrypto.model.CoinData;
+import com.codingnomads.AWSMLCrypto.model.CoinOutput;
 import com.codingnomads.AWSMLCrypto.model.HistoPojo;
 import com.codingnomads.AWSMLCrypto.service.HistoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,4 +45,7 @@ class HistoController {
         return histoService.getBackload();
     }
 
+    @RequestMapping("/coin")
+    public CoinOutput loadCoin(){ return histoService.getCoin();
+    }
 }

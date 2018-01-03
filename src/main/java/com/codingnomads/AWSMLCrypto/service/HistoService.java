@@ -1,14 +1,16 @@
 package com.codingnomads.AWSMLCrypto.service;
 
 import com.codingnomads.AWSMLCrypto.mapper.TestTableMapper;
-import com.codingnomads.AWSMLCrypto.model.Data;
-import com.codingnomads.AWSMLCrypto.model.HistoPojo;
+import com.codingnomads.AWSMLCrypto.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.serializer.Deserializer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Service methods for cryptocompare api calls.
@@ -33,20 +35,22 @@ public class HistoService {
      */
     public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
                                   Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData){
+
+        ArrayList<Data> newData;
         //create a generic HistoDataCall
         GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
                 aggregate, limit, toTs, allData);
         HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
-        //check data
-
-        //insert data not in db
-//        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
+        //checks data and separates out non existing data compared to DB into new data array
+        newData = checkData(histoPojo.getData(), genericHistoCall.getFsym());
+        //inserts new data into db
+        insertHistoData(newData, genericHistoCall.getFsym());
 
         return histoPojo;
     }
 
-    //method to insert data into DB
-    public void insertHistoData (Data[] data, String fsym){
+    //method to insert historical data into DB
+    public void insertHistoData (ArrayList<Data> data, String fsym){
 
         int coinID = cryptoCurrencySelect(fsym);
 
@@ -57,6 +61,7 @@ public class HistoService {
         }
     }
 
+    //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
     public ArrayList<Data> checkData (Data[]data, String fsym){
 
         Integer time;
@@ -87,18 +92,7 @@ public class HistoService {
      * @return  integer corresponding to crypto currency ID in DB
      */
     public int cryptoCurrencySelect(String fsym){
-        int coinID;
-
-        switch (fsym){
-            case "BTC":
-                coinID = 1;
-                break;
-            case "ETH":
-                coinID = 2;
-                break;
-            default:
-                coinID = 0;
-        }
+        int coinID = mapper.getCoinIdByString(fsym);
 
         return coinID;
     }
@@ -126,5 +120,42 @@ public class HistoService {
                 HistoPojo.class);
 //      insertHistoData(histoPojo.getData());
         return histoPojo;
+    }
+
+    //Checks API call of coins with DB and inserts new coins into DB
+    public CoinOutput getCoin () {
+        ArrayList<Coin> newCoin;
+        CoinOutput coin = restTemplate.getForObject("https://www.cryptocompare.com/api/data/coinlist/", CoinOutput.class);
+        newCoin = checkCoin(coin.getData());
+        insertCoin(newCoin);
+        return coin;
+    }
+
+    //Checks DB for existing coin
+    public ArrayList<Coin> checkCoin(HashMap<String, Coin> data){
+        ArrayList<Coin> inDB;
+        ArrayList<Coin> notInDB=null;
+        inDB = mapper.getAllCoins();
+        String exist;
+
+        for (Coin item : data.values()){
+            for (Coin checkDB : inDB){
+                if (item.getName() != checkDB.getName()) {
+                    exist = null;
+                    if (exist == null) {
+                        notInDB.add(item);
+                        break;
+                    }
+                }
+            }
+        }
+        return notInDB;
+    }
+
+    //method to insert coin information from api call
+    public void insertCoin (ArrayList<Coin> data){
+        for (Coin item : data){
+            mapper.insertCoinInfo(item);
+        }
     }
 }
