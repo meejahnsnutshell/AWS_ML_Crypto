@@ -3,6 +3,7 @@ package com.codingnomads.AWSMLCrypto.mapper;
 import com.codingnomads.AWSMLCrypto.model.Coin;
 import com.codingnomads.AWSMLCrypto.model.Data;
 import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -24,13 +25,17 @@ public interface TestTableMapper {
     public final String INSERT_COIN_INFO = "insert into coininfo (name, symbol, coinname, fullname) values (#{name}, #{symbol}, #{coinName}, #{fullName})";
     public final String GET_COINID_BY_STRING = "select id from coininfo where name = #{fsym}";
     public final String GET_ALL_COINS = "select * from coininfo";
+
     public final String INSERT_HIGHVALUEACTUAL = "insert into predictions (highvalueactual) values (#{})"; // TODO: finish this
-    public final String SELECT_HIGHVALUEPREDICT = "select highvaluepredict from predictions where unixtime = (select max(unixtime) from predictions)";
+    public final String SELECT_HIGHVALUEPREDICT = "select highvaluepredict from predictions where unixtime = #{time}";
+    public final String SELECT_HIGHVALUEACTUAL = "select highvalue from datatable where unixtime = #{time}";
+    public final String INSERT_PCTERROR = "insert into predictions (percenterror) values (#{pctError})";
+//    public final String INSERT_SINGLE_VALUE = "insert into #{tablename} (#{columnname}) values (#{})";
 
     @Select(GET_TIME)
     public Integer getTime(Integer time);
 
-    @Select(INSERT_DATA)
+    @Insert(INSERT_DATA)
     public void insertData(Data data);
 
     @Select(SELECT_LATEST_TIME)
@@ -39,7 +44,7 @@ public interface TestTableMapper {
     @Select(GET_DATA_BY_COINID)
     public ArrayList<Data> getDataByCoinID (Integer coinID);
 
-    @Select(INSERT_COIN_INFO)
+    @Insert(INSERT_COIN_INFO)
     public void insertCoinInfo (Coin coin);
 
     @Select(GET_COINID_BY_STRING)
@@ -51,16 +56,25 @@ public interface TestTableMapper {
     @Select(SELECT_CLOSEVALUE_FROM_LATEST_ENTRY)
     public double selectCloseValueFromLatestEntry();
 
-    @Select(INSERT_PREDICT_DATA)
+    @Insert(INSERT_PREDICT_DATA)
     public void insertPredictData(PredictCustomPojo predictResult);
 
     @Select(GET_COINID)
     public int getCoinId(int time);
 
-    @Select(INSERT_HIGHVALUEACTUAL)
+    @Insert(INSERT_HIGHVALUEACTUAL)
     public void insertHighValueActual();
 
     @Select(SELECT_HIGHVALUEPREDICT)
-    public double selectHighValuePredict();
+    public double selectHighValuePredict(Integer time);
+
+    @Select(SELECT_HIGHVALUEACTUAL)
+    public double selectHighValueActual(Integer time);
+
+    @Insert(INSERT_PCTERROR)
+    public void insertPercentError(double pctError);
+
+//    @Insert(INSERT_SINGLE_VALUE)
+//    public
 
 }

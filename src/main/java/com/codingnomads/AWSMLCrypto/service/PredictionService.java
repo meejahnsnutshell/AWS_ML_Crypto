@@ -80,25 +80,21 @@ public class PredictionService extends AbstractAmazonMachineLearning {
      * When last predicted hour has passed, call histohour to get the actual value
      * But we'll be doing this for the real time data gatherer anyway.. so maybe it can work double duty and insert
      * the value into both data and predictions tables..
-     * Compare the two values and give them a score of some sort
+     * Compare the two values and calculate percent error
      */
     public void analyzePrediction(){
-        // thinking this will be part of the cronjob that will be called every hour
+        // thinking this will be part of the cronjob that will be called every hour,
+        // must run after getting the data for the latest hour
         // need the hour (time) in question
-        // get the actual high value for the previous hour now that it is available (via cryptocompare histohour response)
-        double actualValue;
+        Integer currentHour = mapper.selectLatestTime();
+        // get the actual high value now that it is available - from datatable
+        double actualValue = mapper.selectHighValueActual(currentHour);
         // use mapper (SQL) method to insert actual value into prediction table - started this
         // get highvaluepredict using current hour (time) in question (mapper - sql)
-        double predictValue = mapper.selectHighValuePredict();
+        double predictValue = mapper.selectHighValuePredict(currentHour);
         // calculate %error between highvalue predict & actual
-//        double pctError = ((actualvalue - predictValue) / actualvalue) * 100;
-        /**
-         * how to get high value.. do we query the sql database for the last prediction? or do we pull the high
-         * value from the response at the time that we get the response.. no we'll have to get it from the db because
-         * this method won't be happening until an hour later..
-         */
-
+        double pctError = ((actualValue - predictValue) / actualValue) * 100;
         // insert %error into predictions table
-
+        mapper.insertPercentError(pctError);
     }
 }
