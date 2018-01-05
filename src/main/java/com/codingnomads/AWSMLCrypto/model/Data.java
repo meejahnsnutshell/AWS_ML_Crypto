@@ -11,11 +11,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Data {
 
     private Integer id;
-    private Integer time;
-    private Double close;
-    private Double high;
-    private Double low;
-    private Double open;
+    private Integer unixtime;
+    private Double closevalue;
+    private Double highvalue;
+    private Double lowvalue;
+    private Double openvalue;
     private Double volumeFrom;
     private Double volumeTo;
     private Integer coinid;
@@ -23,15 +23,15 @@ public class Data {
     public Data() {
     }
 
-    public Data(@JsonProperty("id") Integer id, @JsonProperty("time")Integer time,@JsonProperty("close") Double close,@JsonProperty("high") Double high,
-                @JsonProperty("low") Double low,@JsonProperty("open") Double open,@JsonProperty("volumefrom") Double volumeFrom,
+    public Data(@JsonProperty("id") Integer id, @JsonProperty("time")Integer unixtime, @JsonProperty("close") Double closevalue, @JsonProperty("high") Double highvalue,
+                @JsonProperty("low") Double lowvalue, @JsonProperty("open") Double openvalue, @JsonProperty("volumefrom") Double volumeFrom,
                 @JsonProperty("volumeto") Double volumeTo) {
         this.id = id;
-        this.time = time;
-        this.close = close;
-        this.high = high;
-        this.low = low;
-        this.open = open;
+        this.unixtime = unixtime;
+        this.closevalue = closevalue;
+        this.highvalue = highvalue;
+        this.lowvalue = lowvalue;
+        this.openvalue = openvalue;
         this.volumeFrom = volumeFrom;
         this.volumeTo = volumeTo;
     }
@@ -44,44 +44,44 @@ public class Data {
         this.id = id;
     }
 
-    public Integer getTime() {
-        return time;
+    public Integer getUnixTime() {
+        return unixtime;
     }
 
     public void setTime(Integer time) {
-        this.time = time;
+        this.unixtime = unixtime;
     }
 
-    public Double getClose() {
-        return close;
+    public Double getClosevalue() {
+        return closevalue;
     }
 
-    public void setClose(Double close) {
-        this.close = close;
+    public void setClosevalue(Double closevalue) {
+        this.closevalue = closevalue;
     }
 
-    public Double getHigh() {
-        return high;
+    public Double getHighvalue() {
+        return highvalue;
     }
 
-    public void setHigh(Double high) {
-        this.high = high;
+    public void setHighvalue(Double highvalue) {
+        this.highvalue = highvalue;
     }
 
-    public Double getLow() {
-        return low;
+    public Double getLowvalue() {
+        return lowvalue;
     }
 
-    public void setLow(Double low) {
-        this.low = low;
+    public void setLowvalue(Double lowvalue) {
+        this.lowvalue = lowvalue;
     }
 
-    public Double getOpen() {
-        return open;
+    public Double getOpenvalue() {
+        return openvalue;
     }
 
-    public void setOpen(Double open) {
-        this.open = open;
+    public void setOpenvalue(Double openvalue) {
+        this.openvalue = openvalue;
     }
 
     public Double getVolumeFrom() {

@@ -36,15 +36,15 @@ public class HistoService {
     public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
                                   Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData){
 
-//        ArrayList<Data> newData;
+        ArrayList<Data> newData;
         //create a generic HistoDataCall
         GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
                 aggregate, limit, toTs, allData);
         HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
 //        //checks data and separates out non existing data compared to DB into new data array
-//        newData = checkData(histoPojo.getData(), genericHistoCall.getFsym());
+        newData = checkData(histoPojo.getData(), genericHistoCall.getFsym(), histoPojo.getTimeFrom(), histoPojo.getTimeTo());
         //inserts new data into db
-        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
+//        insertHistoData(histoPojo.getData(), genericHistoCall.getFsym());
         return histoPojo;
     }
 
@@ -60,30 +60,39 @@ public class HistoService {
         }
     }
 
-//    //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
-//    public ArrayList<Data> checkData (Data[]data, String fsym){
-//
-//        Integer time;
-//        int coinID = cryptoCurrencySelect(fsym);
-//        ArrayList<Data> inDB;
-//        ArrayList<Data> notInDB = null;
-//
-//        inDB = mapper.getDataByCoinID(coinID);
-//
-//        for (Data item: data) {
-//            for (Data checkDB : inDB) {
-//                if (item.getTime() != checkDB.getTime()) {
-//                    time = null;
-//                    if (time == null) {
-//                        notInDB.add(item);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return notInDB;
-//    }
+    //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
+    public ArrayList<Data> checkData (Data[]data, String fsym, Integer timeFrom, Integer timeTo){
+
+        Integer time;
+        int coinID = cryptoCurrencySelect(fsym);
+        ArrayList<Data> inDB = null;
+        ArrayList<Data> notInDB = null;
+
+        inDB = mapper.getDataBetweenTwoTimesForCoinID(timeFrom,timeTo,coinID);
+        //test line to see what inDB is
+        System.out.println(inDB.toString());
+
+        if (inDB.size() == 0){
+            for (Data item : data){
+                notInDB.add(item);
+            }
+            return notInDB;
+        } else {
+            for (Data item: data) {
+                boolean existInDB = false;
+                for (Data checkDB : inDB) {
+                    if (item.getUnixTime() == checkDB.getUnixTime()) {
+                        existInDB = true;
+                        break;
+                    }
+                }
+                if (! existInDB){
+                    notInDB.add(item);
+                }
+            }
+        }
+        return notInDB;
+    }
 
     /**
      * Method to select the correct coinID for database insertion or check based off of fsym variable

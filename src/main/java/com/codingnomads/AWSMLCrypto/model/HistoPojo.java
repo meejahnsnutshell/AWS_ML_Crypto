@@ -12,8 +12,8 @@ public class HistoPojo {
     private Integer type;
     private Boolean aggregated;
     private Data[] data;
-    private Long timeTo;
-    private Long timeFrom;
+    private Integer timeTo;
+    private Integer timeFrom;
     private Boolean firstVolumeInArray;
     private ConversionType conversionType;
 
@@ -22,7 +22,7 @@ public class HistoPojo {
 
     public HistoPojo(@JsonProperty("Response")String response, @JsonProperty("Type") Integer type,
                      @JsonProperty("Aggregated") Boolean aggregated, @JsonProperty("Data") Data[] data,
-                     @JsonProperty("TimeTo") Long timeTo, @JsonProperty("TimeFrom") Long timeFrom,
+                     @JsonProperty("TimeTo") Integer timeTo, @JsonProperty("TimeFrom") Integer timeFrom,
                      @JsonProperty("FirstValueInArray") Boolean firstVolumeInArray,
                      @JsonProperty("ConversionType") ConversionType conversionType) {
         this.response = response;
@@ -67,19 +67,19 @@ public class HistoPojo {
         this.data = data;
     }
 
-    public Long getTimeTo() {
+    public Integer getTimeTo() {
         return timeTo;
     }
 
-    public void setTimeTo(Long timeTo) {
+    public void setTimeTo(Integer timeTo) {
         this.timeTo = timeTo;
     }
 
-    public Long getTimeFrom() {
+    public Integer getTimeFrom() {
         return timeFrom;
     }
 
-    public void setTimeFrom(Long timeFrom) {
+    public void setTimeFrom(Integer timeFrom) {
         this.timeFrom = timeFrom;
     }
 

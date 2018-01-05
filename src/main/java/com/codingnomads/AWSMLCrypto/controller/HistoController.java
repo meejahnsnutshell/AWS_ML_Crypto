@@ -32,7 +32,7 @@ class HistoController {
             @RequestParam (value = "extraParams", required = false)String extraParams,
             @RequestParam (value = "sign", required = false, defaultValue = "false")Boolean sign,
             @RequestParam (value = "tryConversion", required = false, defaultValue = "true")Boolean tryConversion,
-            @RequestParam (value = "aggregate", required = false)Integer aggregate,
+            @RequestParam (value = "aggregate", required = false, defaultValue = "1")Integer aggregate,
             @RequestParam (value = "limit", required = false)Integer limit,
             @RequestParam (value = "toTs", required = false)Timestamp toTs,
             @RequestParam (value = "allData", required = false, defaultValue = "false")Boolean allData

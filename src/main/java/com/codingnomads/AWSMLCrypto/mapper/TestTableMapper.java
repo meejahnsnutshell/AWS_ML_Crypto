@@ -12,23 +12,25 @@ import java.util.List;
 @Mapper
 public interface TestTableMapper {
 
-    public final String GET_TIME = "select unixtime from data where unixtime = #{time}";
+    public final String GET_TIME = "select unixtime from data where unixtime = #{unixtime}";
     public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime)" +
-            "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
+            "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime})";
     public final String SELECT_LATEST_TIME = "select unixtime from data where unixtime = (select max(unixtime) from data)";
     public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where unixtime = (select max(unixtime) from data)";
     public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, modeltype, " +
             "highValuepredict, coinid, unixtime) values (#{requestDate}, #{amznRequestId}, #{modelType}, " +
-            "#{highValuePredict}, #{coinId}, #{time})";
-    public final String GET_COINID = "select coinid from data where unixtime = #{time}";
+            "#{highValuePredict}, #{coinId}, #{unixtime})";
+    public final String GET_COINID = "select coinid from data where unixtime = #{unixtime}";
     public final String GET_DATA_BY_COINID = "select * from datatable where coinid = #{coinid}";
     public final String INSERT_COIN_INFO = "insert into coininfo (name, symbol, coinname, fullname) values (#{name}, #{symbol}, #{coinName}, #{fullName})";
     public final String GET_COINID_BY_STRING = "select id from coininfo where name = #{fsym}";
     public final String GET_ALL_COINS = "select * from coininfo";
+    public final String GET_DATA_BETWEEN_TWO_TIMES_FOR_COINID = "select * from datatable where unixtime >= #{arg0} "
+            +"and unixtime <= #{arg1} and coinid = #{arg2} order by unixtime asc";
 
 
     @Select(GET_TIME)
-    public Integer getTime(Integer time);
+    public Integer getTime(Integer unixtime);
 
     @Select(INSERT_DATA)
     public void insertData(Data data);
@@ -55,6 +57,9 @@ public interface TestTableMapper {
     public void insertPredictData(PredictCustomPojo predictResult);
 
     @Select(GET_COINID)
-    public int getCoinId(int time);
+    public int getCoinId(int unixtime);
+
+    @Select(GET_DATA_BETWEEN_TWO_TIMES_FOR_COINID)
+    public ArrayList<Data> getDataBetweenTwoTimesForCoinID (Integer timeFrom, Integer timeTo, Integer coinID);
 
 }

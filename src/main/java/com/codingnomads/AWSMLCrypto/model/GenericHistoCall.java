@@ -144,27 +144,28 @@ public class GenericHistoCall {
         StringBuilder sb = new StringBuilder();
         sb.append(getDomain()).append(getType()).append("?fsym=").append(getFsym())
         .append("&tsym=").append(getTsym()).append("&e=").append(getE());
-        if (null != getExtraParams()) {
-            sb.append("&").append("extraParams").append("=").append(getExtraParams());
-        }
-        if (null != getSign()) {
-            sb.append("&").append("sign").append("=").append(getSign());
-        }
-        if (null != getTryConversion()) {
-            sb.append("&").append("tryConversion").append("=").append(getTryConversion());
-        }
+//        if (null != getExtraParams()) {
+//            sb.append("&").append("extraParams").append("=").append(getExtraParams());
+//        }
+//        if (null != getSign()) {
+//            sb.append("&").append("sign").append("=").append(getSign());
+//        }
+//        if (null != getTryConversion()) {
+//            sb.append("&").append("tryConversion").append("=").append(getTryConversion());
+//        }
         if (null != getAggregrate()) {
             sb.append("&").append("aggregate").append("=").append(getAggregrate());
         }
         if (null != getLimit()) {
             sb.append("&").append("limit").append("=").append(getLimit());
         }
-        if (null != getToTs()) {
-            sb.append("&").append("toTs").append("=").append(getToTs());
-        }
-        if (null != getAllData()) {
-            sb.append("&").append("allData").append("=").append(getAllData());
-        }
+//        if (null != getToTs()) {
+//            sb.append("&").append("toTs").append("=").append(getToTs());
+//        }
+//        if (null != getAllData()) {
+//            sb.append("&").append("allData").append("=").append(getAllData());
+//        }
+        System.out.println(sb.toString());
         return sb.toString();
     }
 }
