@@ -61,7 +61,7 @@ public class HistoService {
     }
 
     //checking database for existing time entry, if it doesnt exist adds and returns a new arraylist
-    public ArrayList<Data> checkData (Data[]data, String fsym, Integer timeFrom, Integer timeTo){
+    public ArrayList<Data> checkData (Data[]data, String fsym, Long timeFrom, Long timeTo){
 
         Integer time;
         int coinID = cryptoCurrencySelect(fsym);

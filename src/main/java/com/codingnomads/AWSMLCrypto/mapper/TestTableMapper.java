@@ -60,6 +60,6 @@ public interface TestTableMapper {
     public int getCoinId(int unixtime);
 
     @Select(GET_DATA_BETWEEN_TWO_TIMES_FOR_COINID)
-    public ArrayList<Data> getDataBetweenTwoTimesForCoinID (Integer timeFrom, Integer timeTo, Integer coinID);
+    public ArrayList<Data> getDataBetweenTwoTimesForCoinID (Long timeFrom, Long timeTo, Integer coinID);
 
 }
