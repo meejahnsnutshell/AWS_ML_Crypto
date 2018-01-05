@@ -19,24 +19,19 @@ public interface TestTableMapper {
     //public final String SELECT_LATEST_TIME = "select unixtime from predictions where unixtime = (select max(unixtime) from data)";
     //for testing:
     public final String SELECT_LATEST_TIME = "select unixtime from predictions where unixtime = (select max(unixtime) from predictions)";
-    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where unixtime = (select max(unixtime) from data)";
-    public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, modeltype, " +
-            "highValuepredict, coinid, unixtime) values (#{requestDate}, #{amznRequestId}, #{modelType}, " +
-            "#{highValuePredict}, #{coinId}, #{time})";
-    public final String GET_COINID = "select coinid from data where unixtime = #{time}";
+    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from datatable where unixtime = (select max(unixtime) from data)";
+    public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, highValuepredict, coinid, unixtime, modeltypeid, awsmlmodelid) values (#{requestDate}, #{amznRequestId}, #{highValuePredict}, #{coinId}, #{time}, #{modelTypeId}, #{awsMLModelId})";
+    public final String GET_COINID = "select coinid from datatable where unixtime = #{time}";
     public final String GET_DATA_BY_COINID = "select * from datatable where coinid = #{coinid}";
     public final String INSERT_COIN_INFO = "insert into coininfo (name, symbol, coinname, fullname) values (#{name}, #{symbol}, #{coinName}, #{fullName})";
     public final String GET_COINID_BY_STRING = "select id from coininfo where name = #{fsym}";
     public final String GET_ALL_COINS = "select * from coininfo";
 
-    public final String UPDATE_HIGHVALUEACTUAL = "update predictions set highvalueactual = #{arg0} " +
-            "where unixtime = #{arg1}";
+    public final String UPDATE_HIGHVALUEACTUAL = "update predictions set highvalueactual = #{arg0} where unixtime = #{arg1}";
     public final String SELECT_HIGHVALUEPREDICT = "select highvaluepredict from predictions where unixtime = #{time}";
-    public final String SELECT_HIGHVALUEACTUAL = "select highvalue from data where unixtime = #{time}";
+    public final String SELECT_HIGHVALUEACTUAL = "select highvalue from datatable where unixtime = #{time}";
     public final String UPDATE_PCTERROR = "update predictions set percenterror = #{arg0} where unixtime = #{arg1}";
-//    public final String INSERT_SINGLE_VALUE = "insert into #{tablename} (#{columnname}) values (#{})";
-    // for testing, will actually use statement where time is parameter:
-    public final String SELECT_HIGHVALUEACTUAL_TEST = "select highvalue from datatable where unixtime = 1513872000;";
+    public final String SELECT_MODELTYPEID_BY_STRING = "select id from modeltype where name = #{modelType}";
 
     @Select(GET_TIME)
     public Integer getTime(Integer time);
@@ -69,7 +64,7 @@ public interface TestTableMapper {
     public int getCoinId(int time);
 
     @Update(UPDATE_HIGHVALUEACTUAL)
-    public void updateHighValueActual(double arg0, Integer arg1);
+    public void updateHighValueActual(double arg0, Integer arg1); // arg0 = highValueActual, arg1 = time
 
     @Select(SELECT_HIGHVALUEPREDICT)
     public double selectHighValuePredict(Integer time);
@@ -77,14 +72,9 @@ public interface TestTableMapper {
     @Select(SELECT_HIGHVALUEACTUAL)
     public double selectHighValueActual(Integer time);
 
-    // for testing, delete later & use above method where time is parameter
-    @Select(SELECT_HIGHVALUEACTUAL_TEST)
-    public double selectHighValueActualTest();
-
     @Update(UPDATE_PCTERROR)
-    public void updatePcterror(double arg0, Integer arg1);
+    public void updatePcterror(double arg0, Integer arg1); // arg0 = pctError, arg1 = time
 
-//    @Insert(INSERT_SINGLE_VALUE)
-//    public
-
+    @Select(SELECT_MODELTYPEID_BY_STRING)
+    public int getModelTypeId(String modelType);
 }
