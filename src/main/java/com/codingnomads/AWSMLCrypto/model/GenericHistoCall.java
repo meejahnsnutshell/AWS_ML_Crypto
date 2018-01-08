@@ -182,7 +182,6 @@ public class GenericHistoCall {
         if (null != getAllData()) {
             sb.append("&").append("allData").append("=").append(getAllData());
         }
-        System.out.println(sb.toString());
         return sb.toString();
     }
 }
