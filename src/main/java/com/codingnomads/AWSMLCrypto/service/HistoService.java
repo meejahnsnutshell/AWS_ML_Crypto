@@ -46,7 +46,7 @@ public class HistoService {
         //checks data and separates out non existing data compared to DB into new data array
         newData = checkData(histoPojo.getData(), genericHistoCall.getFsym(), histoPojo.getTimeFrom(), histoPojo.getTimeTo());
         //inserts new data into database
-//        insertHistoData(newData, genericHistoCall.getFsym());
+        insertHistoData(newData, genericHistoCall.getFsym());
         return histoPojo;
     }
 
