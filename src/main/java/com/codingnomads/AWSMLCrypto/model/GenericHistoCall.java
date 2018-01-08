@@ -155,6 +155,9 @@ public class GenericHistoCall {
      * Method to create the url api call specific to the desired parameters.  Builds the string URL based on the needed
      * parameters required in the cryptocompare api call and appends any additional parameters to the string
      *
+     * Currently toTs and allData is causing a bug for all data to be returned regardless of parameters passed in
+     * These are commented out for the method until bug fix can be resolved by cryptocompare
+     *
      * @return  A string url built on defined parameters passed to be used for the api call
      */
     public String domainParams() {
@@ -176,12 +179,12 @@ public class GenericHistoCall {
         if (null != getLimit()) {
             sb.append("&").append("limit").append("=").append(getLimit());
         }
-        if (null != getToTs()) {
-            sb.append("&").append("toTs").append("=").append(getToTs());
-        }
-        if (null != getAllData()) {
-            sb.append("&").append("allData").append("=").append(getAllData());
-        }
+//        if (null != getToTs()) {
+//            sb.append("&").append("toTs").append("=").append(getToTs());
+//        }
+//        if (false != getAllData()) {
+//            sb.append("&").append("allData").append("=").append(getAllData());
+//        }
         return sb.toString();
     }
 }
