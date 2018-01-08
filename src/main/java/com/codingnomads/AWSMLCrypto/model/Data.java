@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * created by Jialor Cheung on 12/19/17
+ *
+ * Data pojo for HistoPojo JSON object
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -46,7 +46,7 @@ public class HistoService {
         //checks data and separates out non existing data compared to DB into new data array
         newData = checkData(histoPojo.getData(), genericHistoCall.getFsym(), histoPojo.getTimeFrom(), histoPojo.getTimeTo());
         //inserts new data into database
-        insertHistoData(newData, genericHistoCall.getFsym());
+//        insertHistoData(newData, genericHistoCall.getFsym());
         return histoPojo;
     }
 
@@ -84,14 +84,15 @@ public class HistoService {
         //query database for all data between timeFrom and timeTo for coinID and stores into inDB arraylist
         inDB = mapper.getDataBetweenTwoTimesForCoinID(timeFrom,timeTo,coinID);
         //if inDB contains no data, adds data into notInDB arraylist and returns arraylist
-        //if inDB contains data, checks all items in data against inDB and adds non-existing data into notInDB arraylist
         if (inDB.size() == 0){
             for (Data item: data){
                 notInDB.add(item);
             }
             System.out.println(notInDB.toString());
             return notInDB;
-        } else {
+        }
+        //if inDB contains data, checks all items in data against inDB for existing time stamps and changes boolean existInDB,
+        else {
             for (Data item: data) {
                 boolean existInDB = false;
                 for (Data checkDB : inDB) {
@@ -100,6 +101,7 @@ public class HistoService {
                         break;
                     }
                 }
+                // if existInDB is false, adds non-existing data into notInDB arraylist
                 if (! existInDB){
                     notInDB.add(item);
                 }
@@ -159,7 +161,6 @@ public class HistoService {
         CoinOutput coin = restTemplate.getForObject("https://www.cryptocompare.com/api/data/coinlist/", CoinOutput.class);
         newData = checkCoin(coin.getData());
         insertCoin(newData);
-
         return coin;
     }
 
@@ -169,18 +170,23 @@ public class HistoService {
      * @return          Arraylist of Coin pojos that do not exist in database
      */
     public ArrayList<Coin> checkCoin(HashMap<String, Coin> data){
+        //create inDB arraylist to store database coinlist
         ArrayList<Coin> inDB = new ArrayList<>();
+        //create notInDB arraylist to store new coin data
         ArrayList<Coin> notInDB = new ArrayList<>();
+        //query database to get all coins and store into inDB
         inDB = mapper.getAllCoins();
-
+        //checks each value in hashmap data for coin name and compares to inDB arraylist
         for (Coin item : data.values()) {
             Boolean existInDB = false;
             for (Coin checkDB : inDB) {
+                //if name exists in database sets existInDB true and breaks out of for loop
                 if (checkDB.getName()==item.getName()) {
                     existInDB = true;
                     break;
                 }
             }
+            //if existInDB false, adds Coin data to notInDB arraylist
             if (!existInDB){
                 notInDB.add(item);
             }
