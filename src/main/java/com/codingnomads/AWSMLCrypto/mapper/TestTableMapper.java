@@ -13,13 +13,11 @@ import java.util.ArrayList;
 @Mapper
 public interface TestTableMapper {
 
-    public final String GET_TIME = "select unixtime from data where unixtime = #{time}";
+    public final String GET_TIME = "select unixtime from datatable where unixtime = #{time}";
     public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime)" +
             "values (#{close}, #{high}, #{low}, #{open},#{volumeFrom}, #{volumeTo}, #{time})";
-    //public final String SELECT_LATEST_TIME = "select unixtime from predictions where unixtime = (select max(unixtime) from data)";
-    //for testing:
-    public final String SELECT_LATEST_TIME = "select unixtime from predictions where unixtime = (select max(unixtime) from predictions)";
-    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from datatable where unixtime = (select max(unixtime) from data)";
+    public final String SELECT_LATEST_TIME = "select max(unixtime) from datatable";
+    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from datatable where unixtime = (select max(unixtime) from datatable)";
     public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, highValuepredict, coinid, unixtime, modeltypeid, awsmlmodelid) values (#{requestDate}, #{amznRequestId}, #{highValuePredict}, #{coinId}, #{time}, #{modelTypeId}, #{awsMLModelId})";
     public final String GET_COINID = "select coinid from datatable where unixtime = #{time}";
     public final String GET_DATA_BY_COINID = "select * from datatable where coinid = #{coinid}";
@@ -32,6 +30,7 @@ public interface TestTableMapper {
     public final String SELECT_HIGHVALUEACTUAL = "select highvalue from datatable where unixtime = #{time}";
     public final String UPDATE_PCTERROR = "update predictions set percenterror = #{arg0} where unixtime = #{arg1}";
     public final String SELECT_MODELTYPEID_BY_STRING = "select id from modeltype where name = #{modelType}";
+    public final String SELECT_MODELID = "select awsmlmodelid from predictions where awsmlmodelid = #{mlModelId}";
 
     @Select(GET_TIME)
     public Integer getTime(Integer time);
@@ -77,4 +76,7 @@ public interface TestTableMapper {
 
     @Select(SELECT_MODELTYPEID_BY_STRING)
     public int getModelTypeId(String modelType);
+
+    @Select(SELECT_MODELID)
+    public String checkModelIdExists(String mlModelId);
 }
