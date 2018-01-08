@@ -24,17 +24,19 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
     @Autowired
     TestTableMapper mapper;
-    public boolean createModel = false;
+    //public boolean createModel = false;
     public String modelId = null;
-    public String mlModelName = null;
+    public String modelName = null;
+    AmazonMachineLearningClient awsMlClient = new AmazonMachineLearningClient();
+    MLModel model;
 
     /**
      * third iteration of the real time prediction method.. creating model & endpoint in program
      * saving results to redshift db (predictions table)
+     *
      * @param createModel, modelId status is defined by the user via url query param, existing modelid must be provided to use
      */
-    // todo add model name as query param
-    public PredictCustomPojo getRealTimePrediction(boolean createModel, String modelId) {
+    public PredictCustomPojo getRealTimePrediction(boolean createModel, String modelId, String modelName) {
         // get latest time (used to query for coinid)
         int latestTime = mapper.selectLatestTime();
         // add 1 hour (used to insert into prediction db)
@@ -42,65 +44,67 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         // select previous hour's closevalue & give to AWS as next hour's openvalue
         String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
 
-        PredictRequest predictRequest = new PredictRequest();
-        predictRequest
-                .addRecordEntry("time", String.valueOf(predictionTimeInt))
-                .addRecordEntry("openvalue", recordOpenValue);
-        if (createModel == false) {
-            // use an existing model, specified by modelId, which must exist in your aws account
-            // todo figure out a way to check that the model exists?
-            predictRequest.setMLModelId(modelId);
-            // specify endpoint (must be activated for real time predictions)
-            // todo get endpoint based on provided model id. could be param but it's a long string
-            predictRequest.setPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com");
-        } else {
+        if (createModel == true) {
             // programmatically create a new model
             // todo make it possible to pass specific model parameters
-            CreateMLModelResult result = createAwsMlModel(modelId, mlModelName);
-            predictRequest.setMLModelId(result.getMLModelId());
-
-            // todo figure out how to make endpoint available programatically for a newly created model
-            predictRequest.setPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com");
+            CreateMLModelResult model = createAwsMlModel(modelId, modelName);
+            modelId = model.getMLModelId();
         }
-        // status will likely be pending for a few minutes, if pending or ready then move on to get prediction
-        GetMLModelResult model = new GetMLModelResult();
-        // todo delete after testing:
-        model.getMLModelId();
-        // not sure if this can be done for an existing model. may need to put inside the above else block
 
-        PredictCustomPojo predictPojo = new PredictCustomPojo();
+        // check that model exists (whether new or existing)
+
+        GetMLModelRequest modelRequest = new GetMLModelRequest();
+        modelRequest.setVerbose(false);
+        modelRequest.setMLModelId(modelId);
+
+        GetMLModelResult model = awsMlClient.getMLModel(modelRequest);
         String modelStatus = model.getStatus();
 
-        if ((modelStatus == "DELETED") || (modelStatus == "FAILED")){
-            System.out.println("Model status is " + modelStatus + ". It can't be used");
-        } else if ((modelStatus == "PENDING") || (modelStatus == "INPROGRESS")){
-            while (modelStatus != "COMPLETED"){
+        PredictRequest predictRequest = new PredictRequest();
+
+        if((modelStatus =="DELETED")||(modelStatus =="FAILED"))
+        {
+            System.out.println("Model status is " + modelStatus + ". It can't be used.");
+        } else if((modelStatus =="PENDING")||(modelStatus =="INPROGRESS"))
+        {
+            while (modelStatus != "COMPLETED") {
                 System.out.println("Model status is " + modelStatus + ". Checking again..");
                 modelStatus = model.getStatus();
             }
-        } else if (modelStatus == "COMPLETED"){
-            // create AWS ML client
-            AmazonMachineLearningClient client = new AmazonMachineLearningClient();
-            // Use client to get the results of the prediction
-            PredictResult predictResult = client.predict(predictRequest);
-            // use custom results POJO to extract desired data points from predictResult
-            predictPojo.setRequestDate(predictResult.getSdkHttpMetadata().getHttpHeaders().get("Date"));
-            predictPojo.setAmznRequestId(predictResult.getSdkResponseMetadata().getRequestId());
-            predictPojo.setHighValuePredict(predictResult.getPrediction().getPredictedValue());
-            predictPojo.setCoinId(mapper.getCoinId(latestTime));
-            predictPojo.setTime(predictionTimeInt);
-            predictPojo.setModelTypeId(mapper.getModelTypeId(predictResult.getPrediction().getDetails().get("PredictiveModelType")));
-            predictPojo.setAwsMLModelId(predictRequest.getMLModelId());
-
-            // insert results in db
-            insertPredictResult(predictPojo);
+        } else if(modelStatus =="COMPLETED")
+        {
+            predictRequest
+                    .addRecordEntry("time", String.valueOf(predictionTimeInt))
+                    .addRecordEntry("openvalue", recordOpenValue);
+            predictRequest.setMLModelId(modelId);
+            // specify endpoint (must be activated for real time predictions)
+            // todo get endpoint based on provided model id. note - it's based on region, doesn't actually change unless models are in diff aws regions
+            predictRequest.setPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com");
+            predictRequest.setMLModelId(modelId);
         }
-        // todo create an endpoint/ make it real time ready -- should have a check for existing endpoint first
+
+        // Use AWS client to get the results of the prediction
+        PredictResult predictResult = awsMlClient.predict(predictRequest);
+
+        // use custom results POJO to extract desired data points from predictResult
+        PredictCustomPojo predictPojo = new PredictCustomPojo();
+        predictPojo.setRequestDate(predictResult.getSdkHttpMetadata().getHttpHeaders().get("Date"));
+        predictPojo.setAmznRequestId(predictResult.getSdkResponseMetadata().getRequestId());
+        predictPojo.setHighValuePredict(predictResult.getPrediction().getPredictedValue());
+        predictPojo.setCoinId(mapper.getCoinId(latestTime));
+        predictPojo.setTime(predictionTimeInt);
+        predictPojo.setModelTypeId(mapper.getModelTypeId(predictResult.getPrediction().getDetails().get("PredictiveModelType")));
+        predictPojo.setAwsMLModelId(predictRequest.getMLModelId());
+
+        // insert results in db
+        insertPredictResult(predictPojo);
+
         return predictPojo;
-    }
+}
 
     /**
      * Method that inserts prediction data in db
+     *
      * @param result
      */
     public void insertPredictResult(PredictCustomPojo result) {
@@ -110,7 +114,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
     /**
      * Method to determine accuracy of real-time predictions
      */
-    public double analyzePrediction(){
+    public double analyzePrediction() {
         // thinking this will be part of the cronjob that will be called every hour,
         // must run after getting the data for the latest hour
 
@@ -128,7 +132,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
         // calculate (absolute value) %error between highvalue predict & actual
         double pctError;
-        if (actualValue == 0){
+        if (actualValue == 0) {
             // to avoid divide by zero, get the absolute error
             pctError = abs(actualValue - predictValue);
         } else {
@@ -144,31 +148,38 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
     /**
      * Method to programatically create a new AWS ML Model
+     *
      * @param mlModelId
      * @return
      */
-    public CreateMLModelResult createAwsMlModel(String mlModelId, String mlModelName){
+    public CreateMLModelResult createAwsMlModel(String mlModelId, String mlModelName) {
         CreateMLModelRequest mLModelRequest = new CreateMLModelRequest();
 
-        if (mlModelId == null){
-            // generates unique identifier if model id is not provided
-            mlModelId = "ml-" + UUID.randomUUID().toString();   // todo could check that id doesn't already exist
+        // check if modelId is provided
+        if (null == mlModelId) {
+            // generate id
+            mlModelId = modelIdGenerator();
         }
 
-        if (mlModelName == null){
+        // check that modelid name does not already exist & generate a new name if it does exist
+        while (null != mapper.checkModelIdExists(mlModelId)) {
+            mlModelId = modelIdGenerator();
+        }
+
+        // check if modelName is provided
+        if (mlModelName == null) {
             // generates unique name if model name is not provided
-            mlModelName = mlModelId + " Model";     // todo could check that name doesn't already exist
+            mlModelName = mlModelId + " Model"; // todo check that name doesn't already exist - maybe not necessary since we already check for a unique modelid
         }
 
-        // user provides id & name
         mLModelRequest.setMLModelId(mlModelId);
-        mLModelRequest.setMLModelName(mlModelName);   // todo make this a parameter (query param?)
-        mLModelRequest.setMLModelType(MLModelType.REGRESSION);  // todo not necessary but this could also be a param
+        mLModelRequest.setMLModelName(mlModelName);
+        mLModelRequest.setMLModelType(MLModelType.REGRESSION);  // todo not necessary for us, but this could also be a param
 
         // hash map of parameters
         // todo potentially make these query params too, so you can tweak models on the fly
-        Map<String, String> parameters = new HashMap<String,String>();
-        parameters.put("sgd.maxMLModelSizeInBytes", "13107200" );   // = 100 MB
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("sgd.maxMLModelSizeInBytes", "13107200");   // = 100 MB
         parameters.put("sgd.maxPasses", "50");
         parameters.put("sgd.shuffleType", "auto");                  // default = none
         //parameters.put("sgd.l1RegularizationAmount", );
@@ -178,14 +189,32 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         //mLModelRequest.setRecipe(); // AWS creates default if not provided
         mLModelRequest.setTrainingDataSourceId("ds-wW8vfMKT0qv");
 
-        AmazonMachineLearningClient client = new AmazonMachineLearningClient();
-        // I'm expecting an error due to the time involved in creating models (2-3 mins)
-        CreateMLModelResult result =  new CreateMLModelResult();
+        // Expect an error due to the time involved in creating models (2-3 mins)
+        CreateMLModelResult result = new CreateMLModelResult();
         try {
-            result = client.createMLModel(mLModelRequest);
-        } catch (Exception e){
+            result = awsMlClient.createMLModel(mLModelRequest);
+        } catch (Exception e) {
             System.out.println("Model creation takes a few minutes. Model ID:" + result.getMLModelId() + "will be ready for use soon.");
         }
         return result;
+    }
+
+    public String getEndpoint(String modelId) {
+        GetMLModelRequest modelRequest = new GetMLModelRequest();
+        modelRequest.setMLModelId(modelId);
+        modelRequest.setVerbose(false); // returns recipe
+
+        GetMLModelResult model = awsMlClient.getMLModel(modelRequest);
+        String status = model.getEndpointInfo().getEndpointStatus();
+
+        if (status == "READY") {
+
+        }
+        return status;
+    }
+
+    public String modelIdGenerator() {
+        String mlModelId = "ml-" + UUID.randomUUID().toString();
+        return mlModelId;
     }
 }
