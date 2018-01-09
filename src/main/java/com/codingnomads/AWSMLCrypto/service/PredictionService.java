@@ -1,6 +1,5 @@
 package com.codingnomads.AWSMLCrypto.service;
 
-import com.amazonaws.internal.SdkInternalMap;
 import com.amazonaws.services.machinelearning.AbstractAmazonMachineLearning;
 import com.amazonaws.services.machinelearning.AmazonMachineLearningClient;
 import com.amazonaws.services.machinelearning.model.*;
@@ -17,6 +16,7 @@ import static java.lang.Math.abs;
 
 /**
  * created by Meghan Boyce on 12/22/17
+ * This class contains service methods to make real time predictions using AWS's machine learning API.
  */
 
 @Service
@@ -24,83 +24,150 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
     @Autowired
     TestTableMapper mapper;
-    //public boolean createModel = false;
-    public String modelId = null;
-    public String modelName = null;
-    AmazonMachineLearningClient awsMlClient = new AmazonMachineLearningClient();
-    MLModel model;
+
+    private String modelId = null;
+    private String modelName = null;
+    private AmazonMachineLearningClient awsMlClient = new AmazonMachineLearningClient();
+    private String endptUrl = null;
+
 
     /**
-     * third iteration of the real time prediction method.. creating model & endpoint in program
-     * saving results to redshift db (predictions table)
-     *
-     * @param createModel, modelId status is defined by the user via url query param, existing modelid must be provided to use
+     * Method that calls the AWS Real Time Prediction API. Params are optional.
+     * @param createModel User defines as true to create a new model, false to use existing. Default = false.
+     * @param modelId   User defined or auto-generated if not provided
+     * @param modelName User defined or auto-generated if not provided
+     * @return PredictCustomPojo Custom prediction result pojo
      */
     public PredictCustomPojo getRealTimePrediction(boolean createModel, String modelId, String modelName) {
-        // get latest time (used to query for coinid)
-        int latestTime = mapper.selectLatestTime();
-        // add 1 hour (used to insert into prediction db)
-        int predictionTimeInt = mapper.selectLatestTime() + 3600;
-        // select previous hour's closevalue & give to AWS as next hour's openvalue
-        String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
+        // Create a new AWS prediction request
+        PredictRequest predictRequest = new PredictRequest();
 
         if (createModel == true) {
-            // programmatically create a new model
+            // Programmatically create a new model. Optional: provide id and name.
             // todo make it possible to pass specific model parameters
             CreateMLModelResult model = createAwsMlModel(modelId, modelName);
             modelId = model.getMLModelId();
         }
 
-        // check that model exists (whether new or existing)
-
+        // Check that model exists (whether new or existing)
         GetMLModelRequest modelRequest = new GetMLModelRequest();
         modelRequest.setVerbose(false);
+        // If using existing model, modelId must have been passed as query param
         modelRequest.setMLModelId(modelId);
-
+        // Use AWS client to get the model we want to use to make a prediction
         GetMLModelResult model = awsMlClient.getMLModel(modelRequest);
         String modelStatus = model.getStatus();
-
-        PredictRequest predictRequest = new PredictRequest();
-
-        if((modelStatus =="DELETED")||(modelStatus =="FAILED"))
-        {
+        // Perform actions based on model status (deleted, failed, pending, inprogress, or completed)
+        if ((modelStatus.equalsIgnoreCase("DELETED")) || (modelStatus.equalsIgnoreCase("FAILED"))) {
             System.out.println("Model status is " + modelStatus + ". It can't be used.");
-        } else if((modelStatus =="PENDING")||(modelStatus =="INPROGRESS"))
-        {
-            while (modelStatus != "COMPLETED") {
-                System.out.println("Model status is " + modelStatus + ". Checking again..");
+        } else if ((modelStatus.equalsIgnoreCase("PENDING")) || (modelStatus.equalsIgnoreCase("INPROGRESS"))) {
+            // Check model status every 30 seconds until it is completed. This take a few minutes.
+            while (!modelStatus.equalsIgnoreCase("COMPLETED")) {
+                try {
+                    System.out.println("Sleeping thread for 30 seconds while AWS creates the model...");
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    e.toString();
+                }
+                // Get the model again to refresh model status
+                model = awsMlClient.getMLModel(modelRequest);
                 modelStatus = model.getStatus();
+                System.out.println("Model status is " + modelStatus + ". Checking again..");
             }
-        } else if(modelStatus =="COMPLETED")
-        {
-            predictRequest
-                    .addRecordEntry("time", String.valueOf(predictionTimeInt))
-                    .addRecordEntry("openvalue", recordOpenValue);
-            predictRequest.setMLModelId(modelId);
-            // specify endpoint (must be activated for real time predictions)
-            // todo get endpoint based on provided model id. note - it's based on region, doesn't actually change unless models are in diff aws regions
-            predictRequest.setPredictEndpoint("https://realtime.machinelearning.us-east-1.amazonaws.com");
-            predictRequest.setMLModelId(modelId);
         }
+
+        if (modelStatus.equalsIgnoreCase("COMPLETED")) {
+            // Set the model Id for real time prediction request
+            predictRequest.setMLModelId(modelId);
+            // Get the initial real time endpoint info for the model
+            RealtimeEndpointInfo endptInfo = model.getEndpointInfo();
+            // Get the initial endpoint status (none, ready, or updating)
+            String endptStatus = endptInfo.getEndpointStatus();
+
+            // Case where endpoint does not exist
+            if (endptStatus.equalsIgnoreCase("none")) {
+                // Create endpoint
+                CreateRealtimeEndpointRequest createEndptRequest = new CreateRealtimeEndpointRequest();
+                createEndptRequest.setMLModelId(modelId);
+                CreateRealtimeEndpointResult endptResult = awsMlClient.createRealtimeEndpoint(createEndptRequest);
+                // Check endpoint status again to ensure it was created
+                endptStatus = endptResult.getRealtimeEndpointInfo().getEndpointStatus();
+                // If status is still none, real time predictions can't be made.
+                if (endptStatus.equalsIgnoreCase("none")) {
+                    System.out.println("Something went wrong, endpoint was not created for model " + modelId + ".");
+                    // If status is not none, proceed with building prediction request
+                } else {
+                    // Get the new endpoint URL
+                    endptUrl = endptResult.getRealtimeEndpointInfo().getEndpointUrl();
+                    // Set endpoint url for real time prediction request
+                    predictRequest.setPredictEndpoint(endptUrl);
+                    // Update model with new endpoint info
+                    model.setEndpointInfo(endptResult.getRealtimeEndpointInfo());
+                    // Get the model again, to refresh endpoint status
+                    model = awsMlClient.getMLModel(modelRequest);
+                    endptStatus = model.getEndpointInfo().getEndpointStatus();
+                    // endptStatus = endptResult.getRealtimeEndpointInfo().getEndpointStatus();
+                }
+            }
+            // Case where endpoint exists but is updating.
+            if (endptStatus.equalsIgnoreCase("updating")) {
+                // Continuously check endpoint status every 10 seconds until it is ready
+                while (!endptStatus.equalsIgnoreCase("ready")) {
+                    try {
+                        System.out.println("Sleeping thread for 10 seconds...");
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.toString();
+                    }
+                    // Get the model again, to refresh endpoint status
+                    model = awsMlClient.getMLModel(modelRequest);
+                    endptStatus = model.getEndpointInfo().getEndpointStatus();
+                    System.out.println("Endpoint status is " + endptStatus + ". Checking again..");
+                }
+            }
+            // Case where endpoint exists and is ready
+            if (endptStatus.equalsIgnoreCase("ready")){
+                // Get existing endpoint url
+                endptUrl = model.getEndpointInfo().getEndpointUrl();
+                // Set existing endpoint url for real time prediction request
+                predictRequest.setPredictEndpoint(endptUrl);
+            }
+        }
+
+        // Get time for most recent data point
+        int latestTime = mapper.selectLatestTime();
+        // Add 1 hour for prediction time
+        int predictionTimeInt = mapper.selectLatestTime() + 3600;
+        // Select previous hour's closevalue
+        String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
+        // Set record entries for real time prediction request
+        predictRequest
+                // Time is one hour after the latest time with actual value available
+                .addRecordEntry("time", String.valueOf(predictionTimeInt))
+                // Open value is the previous hour's close value
+                .addRecordEntry("openvalue", recordOpenValue);
 
         // Use AWS client to get the results of the prediction
         PredictResult predictResult = awsMlClient.predict(predictRequest);
-
-        // use custom results POJO to extract desired data points from predictResult
+        // Use custom results POJO & extract desired data points from predictResult
         PredictCustomPojo predictPojo = new PredictCustomPojo();
+        // Date & time the prediction is made
         predictPojo.setRequestDate(predictResult.getSdkHttpMetadata().getHttpHeaders().get("Date"));
         predictPojo.setAmznRequestId(predictResult.getSdkResponseMetadata().getRequestId());
+        // High value is determined by the AWS ML API
         predictPojo.setHighValuePredict(predictResult.getPrediction().getPredictedValue());
+        // Id of cryptocurrency
         predictPojo.setCoinId(mapper.getCoinId(latestTime));
         predictPojo.setTime(predictionTimeInt);
+        // Type of regression model used (ex: REGRESSION, BINARY, MULTICLASS)
         predictPojo.setModelTypeId(mapper.getModelTypeId(predictResult.getPrediction().getDetails().get("PredictiveModelType")));
+        // Id of the AWS Model being used to make the prediction
         predictPojo.setAwsMLModelId(predictRequest.getMLModelId());
 
-        // insert results in db
+        // Insert results in table
         insertPredictResult(predictPojo);
-
         return predictPojo;
-}
+    }
 
     /**
      * Method that inserts prediction data in db
@@ -111,73 +178,71 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         mapper.insertPredictData(result);
     }
 
+
     /**
-     * Method to determine accuracy of real-time predictions
+     * Method to determine the accuracy of real time predictions for hourly "highvalue" by comparing the predicted
+     * highvalue to the actual highvalue once it is available.
+     * @return pctError - Percent error (accuracy) of hourly prediction
      */
     public double analyzePrediction() {
-        // thinking this will be part of the cronjob that will be called every hour,
-        // must run after getting the data for the latest hour
-
-        // get time for most recent prediction
+        // Get time for most recent prediction
         Integer predictHour = mapper.selectLatestTime();
 
-        // get actual high value for this time from datatable
+        // Get actual high value for this time from datatable
         double actualValue = mapper.selectHighValueActual(predictHour);
 
-        // update/set actual value in prediction table for record w/currentHour
+        // Update/set actual value in prediction table for record w/currentHour
         mapper.updateHighValueActual(actualValue, predictHour);
 
-        // select highvaluepredict for currentHour
+        // Select highvaluepredict for currentHour
         double predictValue = mapper.selectHighValuePredict(predictHour);
 
-        // calculate (absolute value) %error between highvalue predict & actual
+        // Calculate (absolute value) %error between highvalue predict & actual
         double pctError;
-        if (actualValue == 0) {
-            // to avoid divide by zero, get the absolute error
+        if (actualValue == 0.0) {
+            // To avoid divide by zero, get the absolute error if actualValue happens to be 0.
             pctError = abs(actualValue - predictValue);
         } else {
             pctError = (abs(actualValue - predictValue) / actualValue) * 100.0;
         }
-        // insert %error into predictions table
+        // Insert pctError into predictions table
         mapper.updatePcterror(pctError, predictHour);
-
         return pctError;
-        // alternatively can I get the existing prediction object in one sql statement,
-        // set the actual and percent error and then return the object so we see the whole record in json?
     }
 
     /**
-     * Method to programatically create a new AWS ML Model
-     *
-     * @param mlModelId
-     * @return
+     * Method to programmatically create a new AWS ML Model.
+     * @param mlModelId - unique identifier, auto-generated if not provided
+     * @param mlModelName - unique identifier, auto-generated if not provided
+     * @return CreateMLModelResult - the newly created model object
      */
     public CreateMLModelResult createAwsMlModel(String mlModelId, String mlModelName) {
+        // Build request to create a new model
         CreateMLModelRequest mLModelRequest = new CreateMLModelRequest();
 
-        // check if modelId is provided
+        // Check if modelId is provided
         if (null == mlModelId) {
-            // generate id
+            // If not provided, generate id
             mlModelId = modelIdGenerator();
         }
 
-        // check that modelid name does not already exist & generate a new name if it does exist
+        // Check that modelId does not already exist & generate a new name if it does
         while (null != mapper.checkModelIdExists(mlModelId)) {
             mlModelId = modelIdGenerator();
         }
 
-        // check if modelName is provided
+        // Check if modelName is provided
         if (mlModelName == null) {
-            // generates unique name if model name is not provided
-            mlModelName = mlModelId + " Model"; // todo check that name doesn't already exist - maybe not necessary since we already check for a unique modelid
+            // If not provided, generate name using modelId
+            mlModelName = "Model " + mlModelId;
         }
-
+        // Assign values to the new model request
         mLModelRequest.setMLModelId(mlModelId);
         mLModelRequest.setMLModelName(mlModelName);
-        mLModelRequest.setMLModelType(MLModelType.REGRESSION);  // todo not necessary for us, but this could also be a param
+        mLModelRequest.setMLModelType(MLModelType.REGRESSION);
 
-        // hash map of parameters
-        // todo potentially make these query params too, so you can tweak models on the fly
+        // Build hash map of parameters
+        // todo make these query params too
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("sgd.maxMLModelSizeInBytes", "13107200");   // = 100 MB
         parameters.put("sgd.maxPasses", "50");
@@ -189,30 +254,21 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         //mLModelRequest.setRecipe(); // AWS creates default if not provided
         mLModelRequest.setTrainingDataSourceId("ds-wW8vfMKT0qv");
 
-        // Expect an error due to the time involved in creating models (2-3 mins)
+        // Create model creation result object
         CreateMLModelResult result = new CreateMLModelResult();
         try {
             result = awsMlClient.createMLModel(mLModelRequest);
+            // Handle possible error due to the time involved in creating models (2-3 mins)
         } catch (Exception e) {
             System.out.println("Model creation takes a few minutes. Model ID:" + result.getMLModelId() + "will be ready for use soon.");
         }
         return result;
     }
 
-    public String getEndpoint(String modelId) {
-        GetMLModelRequest modelRequest = new GetMLModelRequest();
-        modelRequest.setMLModelId(modelId);
-        modelRequest.setVerbose(false); // returns recipe
-
-        GetMLModelResult model = awsMlClient.getMLModel(modelRequest);
-        String status = model.getEndpointInfo().getEndpointStatus();
-
-        if (status == "READY") {
-
-        }
-        return status;
-    }
-
+    /**
+     * Generates a random modelId String
+     * @return String mlModelId
+     */
     public String modelIdGenerator() {
         String mlModelId = "ml-" + UUID.randomUUID().toString();
         return mlModelId;
