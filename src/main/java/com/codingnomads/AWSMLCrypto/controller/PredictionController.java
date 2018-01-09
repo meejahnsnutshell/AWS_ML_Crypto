@@ -20,7 +20,7 @@ public class PredictionController {
 
     @RequestMapping("/realtime")
     public PredictCustomPojo realTimePrediction(
-            @RequestParam(value = "createmodel", required = true, defaultValue = "false") boolean createModel,
+            @RequestParam(value = "createmodel", defaultValue = "false") boolean createModel,
             @RequestParam (value = "modelId", required = false) String modelId,
             @RequestParam(value = "modelName", required = false) String modelName){
         return predictionService.getRealTimePrediction(createModel, modelId, modelName);
