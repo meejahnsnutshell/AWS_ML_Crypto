@@ -8,26 +8,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PredictCustomPojo {
 
+    private int id;
     private String requestDate;
     private String amznRequestId;
-    private String modelType;
     private double highValuePredict;
     private int coinId;
     private int time;
-
-    public PredictCustomPojo(@JsonProperty("Date")String requestDate,
-                             @JsonProperty("x-amzn-RequestId") String amznRequestId,
-                             //@JsonProperty("PredictiveModelType") String modelType,
-                             @JsonProperty("predictedValue") double highValuePredict,
-                             @JsonProperty("coinId") int coinId) {
-        this.requestDate = requestDate;
-        this.amznRequestId = amznRequestId;
-        // this.modelType = modelType;
-        this.highValuePredict = highValuePredict;
-        this.coinId = coinId;
-    }
+//    private double highValueActual;
+//    private double pctError;
+    private int modelTypeId;
+    private String awsMLModelId;
 
     public PredictCustomPojo() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getRequestDate() {
@@ -44,14 +44,6 @@ public class PredictCustomPojo {
 
     public void setAmznRequestId(String amznRequestId) {
         this.amznRequestId = amznRequestId;
-    }
-
-    public String getModelType() {
-        return modelType;
-    }
-
-    public void setModelType(String modelType) {
-        this.modelType = modelType;
     }
 
     public double getHighValuePredict() {
@@ -76,5 +68,37 @@ public class PredictCustomPojo {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+//    public double getHighValueActual() {
+//        return highValueActual;
+//    }
+//
+//    public void setHighValueActual(double highValueActual) {
+//        this.highValueActual = highValueActual;
+//    }
+//
+//    public double getPctError() {
+//        return pctError;
+//    }
+//
+//    public void setPctError(double pctError) {
+//        this.pctError = pctError;
+//    }
+
+    public int getModelTypeId() {
+        return modelTypeId;
+    }
+
+    public void setModelTypeId(int modelTypeId) {
+        this.modelTypeId = modelTypeId;
+    }
+
+    public String getAwsMLModelId() {
+        return awsMLModelId;
+    }
+
+    public void setAwsMLModelId(String awsMLModelId) {
+        this.awsMLModelId = awsMLModelId;
     }
 }

@@ -4,6 +4,7 @@ import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import com.codingnomads.AWSMLCrypto.service.PredictionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -18,7 +19,15 @@ public class PredictionController {
     PredictionService predictionService;
 
     @RequestMapping("/realtime")
-    public PredictCustomPojo realTimePrediction(){
-        return predictionService.getRealTimePrediction();
+    public PredictCustomPojo realTimePrediction(
+            @RequestParam(value = "createmodel", defaultValue = "false") boolean createModel,
+            @RequestParam (value = "modelId", required = false) String modelId,
+            @RequestParam(value = "modelName", required = false) String modelName){
+        return predictionService.getRealTimePrediction(createModel, modelId, modelName);
+    }
+
+    @RequestMapping("/analyze")
+    public void analyzeRealTimePrediction(){
+        predictionService.analyzePrediction();
     }
 }
