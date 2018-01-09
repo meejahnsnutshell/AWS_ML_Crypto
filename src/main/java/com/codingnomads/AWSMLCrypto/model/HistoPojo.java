@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * created by Jialor Cheung on 12/19/17
+ *
+ * POJO for JSON object for historical data API calls
+ *
+ * reference <url>https://www.cryptocompare.com/api/#-api-data-</url>
  */
 
 public class HistoPojo {

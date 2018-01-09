@@ -6,6 +6,8 @@ import java.util.List;
 
 /**
  * created by Jialor Cheung on 1/2/18
+ *
+ * Pojo for coinlist response from <url>https://www.cryptocompare.com/api/data/coinlist/</url>
  */
 
 public class CoinOutput {

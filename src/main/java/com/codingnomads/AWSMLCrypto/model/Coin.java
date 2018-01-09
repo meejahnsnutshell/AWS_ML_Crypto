@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * created by Jialor Cheung on 1/2/18
+ *
+ * This is the Coin Pojo data from API call associated in the Hashmap returned by coinlist API call
  */
 
 
@@ -17,8 +19,8 @@ public class Coin {
     String coinName;
     String fullName;
 
-    public Coin(@JsonProperty("id")Integer id,@JsonProperty("Name")String name,@JsonProperty("Symbol") String symbol,@JsonProperty("CoinName") String coinName,
-                @JsonProperty("FullName")String fullName) {
+    public Coin(@JsonProperty("id")Integer id,@JsonProperty("Name")String name,@JsonProperty("Symbol") String symbol,
+                @JsonProperty("CoinName") String coinName, @JsonProperty("FullName")String fullName) {
         this.id = id;
         this.name = name;
         this.symbol = symbol;
