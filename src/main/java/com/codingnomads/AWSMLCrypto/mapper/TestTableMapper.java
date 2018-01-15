@@ -33,6 +33,7 @@ public interface TestTableMapper {
     public final String UPDATE_PCTERROR = "update predictions set percenterror = #{arg0} where unixtime = #{arg1}";
     public final String SELECT_MODELTYPEID_BY_STRING = "select id from modeltype where name = #{modelType}";
     public final String SELECT_MODELID = "select awsmlmodelid from predictions where awsmlmodelid = #{mlModelId}";
+    public final String SELECT_LATEST_PREDICTION_TIME = "select max(unixtime) from predictions";
 
 
     @Select(GET_TIME)
@@ -85,4 +86,7 @@ public interface TestTableMapper {
 
     @Select(SELECT_MODELID)
     public String checkModelIdExists(String mlModelId);
+
+    @Select(SELECT_LATEST_PREDICTION_TIME)
+    public Integer selectLatestPredictionTime();
 }
