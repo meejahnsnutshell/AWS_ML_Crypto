@@ -12,10 +12,10 @@ import java.util.ArrayList;
 @Mapper
 public interface TableMapper {
 
-    public final String GET_TIME = "select unixtime from data where unixtime = #{unixtime}";
-    public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime)" +
-            "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime})";
-    public final String SELECT_LATEST_TIME = "select max(unixtime) from data";
+    public final String GET_TIME = "select unixtime from datatable where unixtime = #{unixtime}";
+    public final String INSERT_DATA = "insert into datatable (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime, coinid)" +
+            "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime}, #{coinid})";
+    public final String SELECT_LATEST_TIME = "select max(unixtime) from datatable";
     public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where unixtime = (select max(unixtime) from data)";
     public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, highValuepredict, " +
             "coinid, unixtime, modeltypeid, awsmlmodelid) values (#{requestDate}, #{amznRequestId}, #{highValuePredict}, " +
