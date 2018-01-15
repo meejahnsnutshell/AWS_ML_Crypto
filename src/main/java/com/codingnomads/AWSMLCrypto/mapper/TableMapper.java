@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import java.util.ArrayList;
 
-@Mapper
-public interface TestTableMapper {
+@org.apache.ibatis.annotations.Mapper
+public interface Mapper {
 
     public final String GET_TIME = "select unixtime from data where unixtime = #{unixtime}";
     public final String INSERT_DATA = "insert into data (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime)" +

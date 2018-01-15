@@ -1,16 +1,14 @@
 package com.codingnomads.AWSMLCrypto.service;
 
-import com.codingnomads.AWSMLCrypto.mapper.TestTableMapper;
+import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
 import com.codingnomads.AWSMLCrypto.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.serializer.Deserializer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Service methods for cryptocompare api calls.
@@ -23,7 +21,7 @@ public class HistoService {
     RestTemplate restTemplate;
 
     @Autowired
-    TestTableMapper mapper;
+    TableMapper mapper;
 
     String domain = "https://min-api.cryptocompare.com/data/";
 
