@@ -16,7 +16,7 @@ public interface TableMapper {
     public final String INSERT_DATA = "insert into datatable (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime, coinid)" +
             "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime}, #{coinid})";
     public final String SELECT_LATEST_TIME = "select max(unixtime) from datatable";
-    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from data where unixtime = (select max(unixtime) from data)";
+    public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from datatable where unixtime = (select max(unixtime) from datatable)";
     public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, highValuepredict, " +
             "coinid, unixtime, modeltypeid, awsmlmodelid) values (#{requestDate}, #{amznRequestId}, #{highValuePredict}, " +
             "#{coinId}, #{time}, #{modelTypeId}, #{awsMLModelId})";
