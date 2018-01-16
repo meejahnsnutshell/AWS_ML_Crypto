@@ -1,10 +1,8 @@
-# CryptoPredict [![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg)]()
+# CryptoPredict
 
 CryptoPredict is a Spring-based RESTful API written in Java that gets & stores historical cryptocurrency pricing. It then
 uses that data to make price predictions.  
-CryptoPredict utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#),  
-[AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & 
-[AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
+CryptoPredict utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#), [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
 
 Using an hourly cronjob, this API continuously stores new data, predicts future values, and evaluates its predictions.
 
@@ -45,13 +43,31 @@ Instructions go here
 
 ## Making Predictions
 
-* Use an existing model created via the AWS console (where createmodel=false & modelid & modelname are provided) or 
-create one programmatically (createmodel=true, a unique name/id may be provided or the program auto-generates them). 
-(Note: At this time the programmatic creation of a model is not fully developed. New models must use an existing datasource.)
+* Using the AWS console, ensure you have a datasource (which is data that AWS exports from your Redshift db to an S3 
+bucket) available for your machine learning model. Models can be created programatically or via the console - both use 
+an existing datasource.  
 
-* Make a prediction HTTP call (in your browser url or curl command in the cronjob)
-For example, to use an existing model: 
-localhost:8080/prediction/realtime?modelid=1234&modelname=model1234
+* To programatically create a model, set createmodel=true. Optional: modelId=xxxx&modelName=xxxx. Id and name are 
+generated if not provided. Ex URIs:
+```
+.../predict/realtime?createmodel=true&modelId=1234&modelName=MyModel
+```
+or
+```
+.../predict/realtime?createmodel=true
+```
+At present, model parameters may be configured in the code:
+[insert screenshot]
+
+* To use an existing model, provide id and name.
+```
+.../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
+```
+
+* Make a prediction HTTP call. For example, using an existing model: 
+```
+.../predict/realtime?modelid=1234&modelname=model1234
+```
 
 ## Contributors
 * [Jialor Cheung](https://github.com/PopoPenguin)
