@@ -3,7 +3,7 @@ package com.codingnomads.AWSMLCrypto.service;
 import com.amazonaws.services.machinelearning.AbstractAmazonMachineLearning;
 import com.amazonaws.services.machinelearning.AmazonMachineLearningClient;
 import com.amazonaws.services.machinelearning.model.*;
-import com.codingnomads.AWSMLCrypto.mapper.TestTableMapper;
+import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
 import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import static java.lang.Math.abs;
 public class PredictionService extends AbstractAmazonMachineLearning {
 
     @Autowired
-    TestTableMapper mapper;
+    TableMapper mapper;
 
     private String modelId = null;
     private String modelName = null;
@@ -198,11 +198,11 @@ public class PredictionService extends AbstractAmazonMachineLearning {
     /**
      * Method to determine the accuracy of real time predictions for hourly "highvalue" by comparing the predicted
      * highvalue to the actual highvalue once it is available.
-     * @return pctError - Percent error (accuracy) of hourly prediction
+     * @return double - percent error (accuracy) of hourly prediction
      */
     public double analyzePrediction() {
         // Get time for most recent prediction
-        Integer predictHour = mapper.selectLatestPredictionTime();    // todo get time from predictions
+        Integer predictHour = mapper.selectLatestPredictionTime();
 
         // Get actual high value for this time from datatable
         double actualValue = mapper.selectHighValueActual(predictHour);
