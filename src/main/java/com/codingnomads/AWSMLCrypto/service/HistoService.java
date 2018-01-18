@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -202,5 +204,18 @@ public class HistoService {
         for (Coin item : data){
             mapper.insertCoinInfo(item);
         }
+    }
+
+    public void backloadYear(){
+        long currentTimeMillis = System.currentTimeMillis();
+        long currentSec = currentTimeMillis / 1000;
+        long currentMin = currentSec / 60;
+        long currentHour = currentMin % 60;
+        long currentHourUnixTime = currentHour * 60 * 60;
+        long currentTimeSec = currentTimeMillis/1000;
+
+        Date currentDate = new Date();
+        long unixTime = currentDate.getTime()/1000;
+
     }
 }
