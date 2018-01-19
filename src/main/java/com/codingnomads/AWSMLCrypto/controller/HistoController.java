@@ -34,10 +34,9 @@ class HistoController {
             @RequestParam (value = "tryConversion", required = false, defaultValue = "true")Boolean tryConversion,
             @RequestParam (value = "aggregate", required = false, defaultValue = "1")Integer aggregate,
             @RequestParam (value = "limit", required = false)Integer limit,
-            @RequestParam (value = "toTs", required = false)Timestamp toTs,
-            @RequestParam (value = "allData", required = false, defaultValue = "false")Boolean allData
+            @RequestParam (value = "toTs", required = false)Timestamp toTs
 
-    ){ return histoService.getHistoData(type,fsym,tsym,e,extraParams,sign, tryConversion, aggregate,limit,toTs,allData);
+    ){ return histoService.getHistoData(type,fsym,tsym,e,extraParams,sign, tryConversion, aggregate,limit,toTs);
     }
 
     @RequestMapping("/backload")
@@ -51,10 +50,9 @@ class HistoController {
             @RequestParam (value = "tryConversion", required = false, defaultValue = "true")Boolean tryConversion,
             @RequestParam (value = "aggregate", required = false)Integer aggregate,
             @RequestParam (value = "limit", required = false)Integer limit,
-            @RequestParam (value = "toTs", required = false)Timestamp toTs,
-            @RequestParam (value = "allData", required = false, defaultValue = "false")Boolean allData
+            @RequestParam (value = "toTs", required = false)Timestamp toTs
     ){
-        return histoService.getBackload(type,fsym,tsym,e,extraParams,sign, tryConversion, aggregate,limit,toTs,allData);
+        return histoService.getBackload(type,fsym,tsym,e,extraParams,sign, tryConversion, aggregate,limit,toTs);
     }
 
     @RequestMapping("/coin")

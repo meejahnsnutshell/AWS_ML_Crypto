@@ -21,7 +21,6 @@ public class GenericHistoCall {
     Integer aggregrate = 1;
     Integer limit;
     Timestamp toTs;
-    Boolean allData = false;
 
     /**
      * Constructor for GenericHistoCall
@@ -36,11 +35,9 @@ public class GenericHistoCall {
      * @param aggregrate    Number of aggregate to query by, default value 1 - optional
      * @param limit         Limit of results to return - optional
      * @param toTs          toTimestamp - optional
-     * @param allData       get all data, default value false - optional
      */
     public GenericHistoCall(String type, String fsym, String tsym, String e, String extraParams,
-                            Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, Timestamp toTs,
-                            Boolean allData) {
+                            Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, Timestamp toTs) {
         this.type = type;
         this.fsym = fsym;
         this.tsym = tsym;
@@ -51,7 +48,6 @@ public class GenericHistoCall {
         this.aggregrate = aggregrate;
         this.limit = limit;
         this.toTs = toTs;
-        this.allData = allData;
     }
 
     //Getters and Setters for variables
@@ -143,14 +139,6 @@ public class GenericHistoCall {
         this.toTs = toTs;
     }
 
-    public Boolean getAllData() {
-        return allData;
-    }
-
-    public void setAllData(Boolean allData) {
-        this.allData = allData;
-    }
-
     /**
      * Method to create the url api call specific to the desired parameters.  Builds the string URL based on the needed
      * parameters required in the cryptocompare api call and appends any additional parameters to the string
@@ -181,9 +169,6 @@ public class GenericHistoCall {
         }
 //        if (null != getToTs()) {
 //            sb.append("&").append("toTs").append("=").append(getToTs());
-//        }
-//        if (false != getAllData()) {
-//            sb.append("&").append("allData").append("=").append(getAllData());
 //        }
         return sb.toString();
     }
