@@ -10,11 +10,11 @@ import org.apache.ibatis.annotations.Update;
 import java.util.ArrayList;
 
 @Mapper
-public interface TestTableMapper {
+public interface TableMapper {
 
     public final String GET_TIME = "select unixtime from datatable where unixtime = #{unixtime}";
-    public final String INSERT_DATA = "insert into datatable (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime)" +
-            "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime})";
+    public final String INSERT_DATA = "insert into datatable (closevalue, highvalue, lowvalue, openvalue, volumefrom, volumeto, unixtime, coinid)" +
+            "values (#{closevalue}, #{highvalue}, #{lowvalue}, #{openvalue},#{volumeFrom}, #{volumeTo}, #{unixtime}, #{coinid})";
     public final String SELECT_LATEST_TIME = "select max(unixtime) from datatable";
     public final String SELECT_CLOSEVALUE_FROM_LATEST_ENTRY = "select closevalue from datatable where unixtime = (select max(unixtime) from datatable)";
     public final String INSERT_PREDICT_DATA = "insert into predictions (requestdate, amznrequestid, highValuepredict, " +
@@ -33,6 +33,7 @@ public interface TestTableMapper {
     public final String UPDATE_PCTERROR = "update predictions set percenterror = #{arg0} where unixtime = #{arg1}";
     public final String SELECT_MODELTYPEID_BY_STRING = "select id from modeltype where name = #{modelType}";
     public final String SELECT_MODELID = "select awsmlmodelid from predictions where awsmlmodelid = #{mlModelId}";
+    public final String SELECT_LATEST_PREDICTION_TIME = "select max(unixtime) from predictions";
 
 
     @Select(GET_TIME)
@@ -85,4 +86,7 @@ public interface TestTableMapper {
 
     @Select(SELECT_MODELID)
     public String checkModelIdExists(String mlModelId);
+
+    @Select(SELECT_LATEST_PREDICTION_TIME)
+    public Integer selectLatestPredictionTime();
 }

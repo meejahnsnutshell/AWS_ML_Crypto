@@ -76,7 +76,7 @@
 			<artifactId>aws-java-sdk-machinelearning</artifactId>
 			<version>1.11.253</version>
 		</dependency>
-		<!-- uncomment below to run remotely -->
+		<!-- uncomment below to run on EC2 server -->
 		<!--<dependency>-->
 			<!--<groupId>org.springframework.boot</groupId>-->
 			<!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
@@ -85,7 +85,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>predictionBot</finalName>
+		<finalName>predictionApiBot</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
