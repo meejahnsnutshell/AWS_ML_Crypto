@@ -1,8 +1,8 @@
-# CryptoPredict
+# AWS_ML_Crypto
 
-CryptoPredict is a Spring-based RESTful API written in Java that gets & stores historical cryptocurrency pricing. It then
+AWS_ML_Crypto is a Spring-based RESTful API written in Java that gets & stores historical cryptocurrency pricing. It then
 uses that data to make price predictions.  
-CryptoPredict utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#), [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
+AWS_ML_Crypto utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#), [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
 
 Using an hourly cronjob, this API continuously stores new data, predicts future values, and evaluates its predictions.
 
@@ -19,8 +19,8 @@ The following must be installed on your local machine to use this program as is.
 Clone the project to your desired location
 
 ```
-$ git clone https://github.com/meejahnsnutshell/AWSMLCrypto
-$ cd AWSMLCrypto
+$ git clone https://github.com/meejahnsnutshell/AWS_ML_Crypto
+$ cd AWS_ML_Crypto
 $ mvn clean install
 ```
 ### AWS Setup
@@ -56,7 +56,7 @@ or
 ```
 .../predict/realtime?createmodel=true
 ```
-At present, model parameters may be configured in the code:
+Model parameters may be configured in the code:
 [insert screenshot]
 
 * To use an existing model, provide id and name.
@@ -78,6 +78,3 @@ At present, model parameters may be configured in the code:
 * [CryptoCompare API](https://www.cryptocompare.com/api/#)
 * [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/)
 * [Machine Learning Samples](https://github.com/awslabs/machine-learning-samples/blob/master/targeted-marketing-java/src/main/java/com/amazonaws/samples/machinelearning/BuildModel.java) by awslabs
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
