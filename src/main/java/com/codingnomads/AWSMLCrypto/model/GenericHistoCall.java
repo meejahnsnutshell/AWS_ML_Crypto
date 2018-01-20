@@ -1,7 +1,5 @@
 package com.codingnomads.AWSMLCrypto.model;
 
-import java.sql.Timestamp;
-
 /**
  * created by Jialor Cheung on 12/29/17
  *
@@ -19,8 +17,8 @@ public class GenericHistoCall {
     Boolean sign = false;
     Boolean tryConversion = true;
     Integer aggregrate = 1;
-    Integer limit;
-    Timestamp toTs;
+    Integer limit = 50;
+    long toTs;
 
     /**
      * Constructor for GenericHistoCall
@@ -37,7 +35,7 @@ public class GenericHistoCall {
      * @param toTs          toTimestamp - optional
      */
     public GenericHistoCall(String type, String fsym, String tsym, String e, String extraParams,
-                            Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, Timestamp toTs) {
+                            Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, long toTs) {
         this.type = type;
         this.fsym = fsym;
         this.tsym = tsym;
@@ -131,11 +129,11 @@ public class GenericHistoCall {
         this.limit = limit;
     }
 
-    public Timestamp getToTs() {
+    public long getToTs() {
         return toTs;
     }
 
-    public void setToTs(Timestamp toTs) {
+    public void setToTs(long toTs) {
         this.toTs = toTs;
     }
 

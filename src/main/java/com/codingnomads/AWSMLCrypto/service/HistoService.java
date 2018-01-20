@@ -2,14 +2,12 @@ package com.codingnomads.AWSMLCrypto.service;
 
 import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
 import com.codingnomads.AWSMLCrypto.model.*;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.text.DateFormatter;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +34,7 @@ public class HistoService {
      * @return Histopojo object from API call
      */
     public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
-                                  Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs){
+                                  Boolean tryConversion, Integer aggregate, Integer limit, long toTs){
 
         //creates a new Arraylist of type Data to store new Data for insertion into database
         ArrayList<Data> newData = new ArrayList<Data>();
@@ -128,7 +126,7 @@ public class HistoService {
      * @return
      */
     public HistoPojo getBackload(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
-                                 Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs) {
+                                 Boolean tryConversion, Integer aggregate, Integer limit, long toTs) {
         // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
         long latestTime = (mapper.selectLatestTime()) / 3600;
         // get current time (in ms, convert to secs)
@@ -206,31 +204,32 @@ public class HistoService {
         }
     }
 
-    public void backloadYear(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
-                             Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs){
-        //gets current calendar date
-        Calendar cal = Calendar.getInstance();
-        //gets current unixTime
-        long unixTimeCurrent = cal.getTime().getTime();
-        //changes calendar date to previous year
-        cal.add(Calendar.YEAR, -1);
-        //gets previous calendar date to unixtime
-        long unixTimePreviousYear = cal.getTime().getTime()/1000;
-
-        // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
-        long latestTime = (mapper.selectLatestTime()) / 3600;
-        // get current time (in ms, convert to secs)
-        long currentTimeSec =(long) (System.currentTimeMillis() * .001);
-        // convert to hours
-        long currentTimeHrs = currentTimeSec / 3600;
-        // # of time increments between latest and current time (here we're using hrs)
-        long timeDiff = (currentTimeHrs - latestTime);
-
-        //for current time until previous time
-        long time = unixTimeCurrent;
-        //make api call
-        while (time >= unixTimePreviousYear)
-        getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time);
-
-    }
+    //TODO complete this method for backloading year
+//    public void backloadYear(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
+//                             Boolean tryConversion, Integer aggregate, Integer limit, long toTs){
+//        //gets current calendar date
+//        Calendar cal = Calendar.getInstance();
+//        //gets current unixTime
+//        long unixTimeCurrent = cal.getTime().getTime();
+//        //changes calendar date to previous year
+//        cal.add(Calendar.YEAR, -1);
+//        //gets previous calendar date to unixtime
+//        long unixTimePreviousYear = cal.getTime().getTime()/1000;
+//
+//        // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
+//        long latestTime = (mapper.selectLatestTime()) / 3600;
+//        // get current time (in ms, convert to secs)
+//        long currentTimeSec =(long) (System.currentTimeMillis() * .001);
+//        // convert to hours
+//        long currentTimeHrs = currentTimeSec / 3600;
+//        // # of time increments between latest and current time (here we're using hrs)
+//        long timeDiff = (currentTimeHrs - latestTime);
+//
+//        //for current time until previous time
+//        long time = unixTimeCurrent;
+//        //make api call
+//        while (time >= unixTimePreviousYear)
+//        getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time);
+//
+//    }
 }

@@ -38,8 +38,32 @@ Workbench/J to your Redshift cluster.
 
 ## Loading Historical Data
 
+* [Cryptocompare API](https://www.cryptocompare.com/api/#-api-data-) is source for historical data of current cryptocurrency 
+pricing. All API calls for aggregating and loading data are within the HistoController.  Calls that can be made include "data",  
+"backload", and "backloadYear".
 
-Instructions go here
+* Parameters for API call include type (type of historical call being made; default = histohour), fsym (from Symbol; default = BTC), 
+tysm (to Symbol; default = USD), e (exchange; default = CCCAGG), extraParams (name of application), 
+sign (If set to true, the server will sign the requests; default = false), tryConversion (If set to false, it will try to 
+get values without using any conversion at all; default = true), aggregate (default = 1), limit (default = 50), toTs (unix Timestamp). 
+
+**Required Parameters:**
+Type, fsym, tsym, and e are the minimum parameters that should be included for all API calls.
+* Ex of a URL call 
+```
+.../histo/data?type=histohour&fsym=BTC&tsym=USD&limit=10&aggregate=1&e=CCCAGG
+```
+
+* Data API calls mirror API calls from Cryptocompare.  Data received will be checked against database for new data entries 
+between timestamps.  Any new data will be inserted into the database.
+
+* Backload API calls will check database for most current timestamp for requested cryptocurrency and will aggregate new 
+data up to current time stamp and  insert into database.
+
+* **--In Development --** BackloadYear API call will aggregate all data up to the previous year based on current timestamp 
+and cryptocurrency selected.  Any new data that does not exist in the database will be entered.
+
+* Coin API calls will get all current cryptocurrency listed on Cryptocompare and will insert any new currency into the database.
 
 ## Making Predictions
 
