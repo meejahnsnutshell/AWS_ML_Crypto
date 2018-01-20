@@ -40,7 +40,8 @@ Workbench/J to your Redshift cluster.
 
 * [Cryptocompare API](https://www.cryptocompare.com/api/#-api-data-) is source for historical data of current cryptocurrency 
 pricing. All API calls for aggregating and loading data are within the HistoController.  Calls that can be made include "data",  
-"backload", and "backloadYear".
+"backload", "backloadYear", and "coin". "coin" should be run first to populate data tables for coin list before "backloadYear"
+is used to backload the data for cryptocurrency wanted.
 
 * Parameters for API call include type (type of historical call being made; default = histohour), fsym (from Symbol; default = BTC), 
 tysm (to Symbol; default = USD), e (exchange; default = CCCAGG), extraParams (name of application), 
@@ -49,7 +50,7 @@ get values without using any conversion at all; default = true), aggregate (defa
 
 **Required Parameters:**
 Type, fsym, tsym, and e are the minimum parameters that should be included for all API calls.
-* Ex of a URL call 
+* Ex of a URI call 
 ```
 .../histo/data?type=histohour&fsym=BTC&tsym=USD&limit=10&aggregate=1&e=CCCAGG
 ```
@@ -60,8 +61,14 @@ between timestamps.  Any new data will be inserted into the database.
 * Backload API calls will check database for most current timestamp for requested cryptocurrency and will aggregate new 
 data up to current time stamp and  insert into database.
 
-* **--In Development --** BackloadYear API call will aggregate all data up to the previous year based on current timestamp 
-and cryptocurrency selected.  Any new data that does not exist in the database will be entered.
+* BackloadYear API call will aggregate all data since the requested year change based on current timestamp 
+and cryptocurrency selected.  Parameters are the same as other API calls with the addition of year (default value = -1). 
+This parameter is the change to the current year date for data requested. Any new data that does not exist in the database 
+will be entered.
+**Ex. URI for backloading data for previous year:**
+```$xslt
+/histo/backloadYear?type=histohour&fsym=BTC&tsym=USD&e=CCCAGG&limit=500&year=-1
+```
 
 * Coin API calls will get all current cryptocurrency listed on Cryptocompare and will insert any new currency into the database.
 

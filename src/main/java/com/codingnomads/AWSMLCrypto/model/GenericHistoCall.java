@@ -1,11 +1,14 @@
 package com.codingnomads.AWSMLCrypto.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * created by Jialor Cheung on 12/29/17
  *
  * Generic API call for all histo data calls for <url>https://www.cryptocompare.com/api/#-api-data-</url>
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GenericHistoCall {
 
     String domain = "https://min-api.cryptocompare.com/data/";
@@ -16,9 +19,9 @@ public class GenericHistoCall {
     String extraParams;
     Boolean sign = false;
     Boolean tryConversion = true;
-    Integer aggregrate = 1;
+    Integer aggregate = 1;
     Integer limit = 50;
-    long toTs;
+    long toTs = 0;
 
     /**
      * Constructor for GenericHistoCall
@@ -30,12 +33,12 @@ public class GenericHistoCall {
      * @param extraParams   Name of your application - optional
      * @param sign          If set to true, the server will sign the requests. default value false - optional
      * @param tryConversion If set to false, it will try to get values without using any conversion at all, default value true - optional
-     * @param aggregrate    Number of aggregate to query by, default value 1 - optional
+     * @param aggregate    Number of aggregate to query by, default value 1 - optional
      * @param limit         Limit of results to return - optional
      * @param toTs          toTimestamp - optional
      */
     public GenericHistoCall(String type, String fsym, String tsym, String e, String extraParams,
-                            Boolean sign, Boolean tryConversion, Integer aggregrate, Integer limit, long toTs) {
+                            Boolean sign, Boolean tryConversion, Integer aggregate, Integer limit, long toTs) {
         this.type = type;
         this.fsym = fsym;
         this.tsym = tsym;
@@ -43,7 +46,7 @@ public class GenericHistoCall {
         this.extraParams = extraParams;
         this.sign = sign;
         this.tryConversion = tryConversion;
-        this.aggregrate = aggregrate;
+        this.aggregate = aggregate;
         this.limit = limit;
         this.toTs = toTs;
     }
@@ -113,12 +116,12 @@ public class GenericHistoCall {
         this.tryConversion = tryConversion;
     }
 
-    public Integer getAggregrate() {
-        return aggregrate;
+    public Integer getAggregate() {
+        return aggregate;
     }
 
-    public void setAggregrate(Integer aggregrate) {
-        this.aggregrate = aggregrate;
+    public void setAggregate(Integer aggregate) {
+        this.aggregate = aggregate;
     }
 
     public Integer getLimit() {
@@ -153,21 +156,21 @@ public class GenericHistoCall {
         if (null != getExtraParams()) {
             sb.append("&").append("extraParams").append("=").append(getExtraParams());
         }
-        if (null != getSign()) {
+        if (false != getSign()) {
             sb.append("&").append("sign").append("=").append(getSign());
         }
-        if (null != getTryConversion()) {
+        if (true != getTryConversion()) {
             sb.append("&").append("tryConversion").append("=").append(getTryConversion());
         }
-        if (null != getAggregrate()) {
-            sb.append("&").append("aggregate").append("=").append(getAggregrate());
+        if (null != getAggregate()) {
+            sb.append("&").append("aggregate").append("=").append(getAggregate());
         }
         if (null != getLimit()) {
             sb.append("&").append("limit").append("=").append(getLimit());
         }
-//        if (null != getToTs()) {
-//            sb.append("&").append("toTs").append("=").append(getToTs());
-//        }
+        if (0 != getToTs()) {
+            sb.append("&").append("toTs").append("=").append(getToTs());
+        }
         return sb.toString();
     }
 }
