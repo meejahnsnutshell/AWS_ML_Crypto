@@ -2,12 +2,10 @@ package com.codingnomads.AWSMLCrypto.service;
 
 import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
 import com.codingnomads.AWSMLCrypto.model.*;
-import com.sun.xml.internal.bind.v2.TODO;
+//import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,15 +96,16 @@ public class HistoService {
             for (Data item: data){
                 notInDB.add(item);
             }
-            System.out.println(notInDB.toString());
             return notInDB;
         }
         //if inDB contains data, checks all items in data against inDB for existing time stamps and changes boolean existInDB,
         else {
             for (Data item: data) {
                 boolean existInDB = false;
+                long itemTime = item.getUnixTime();
                 for (Data checkDB : inDB) {
-                    if (item.getUnixTime() == checkDB.getUnixTime()) {
+                    long checkDBTime = checkDB.getUnixTime();
+                    if (itemTime == checkDBTime) {
                         existInDB = true;
                         break;
                     }
@@ -187,9 +186,11 @@ public class HistoService {
         //checks each value in hashmap data for coin name and compares to inDB arraylist
         for (Coin item : data.values()) {
             Boolean existInDB = false;
+            String itemName = item.getName();
             for (Coin checkDB : inDB) {
+                String checkDBName = checkDB.getName();
                 //if name exists in database sets existInDB true and breaks out of for loop
-                if (checkDB.getName()==item.getName()) {
+                if (checkDBName == itemName) {
                     existInDB = true;
                     break;
                 }
@@ -246,12 +247,13 @@ public class HistoService {
         long time = unixTimeCurrent;
         //while time is greater than previous year
         while (time >= unixTimePreviousYear){
+            HistoPojo histoPojo = new HistoPojo();
             //makes api call with given parameters
-            getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time);
+            histoPojo = getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time);
             //adds histopojo to arraylist
-            histoPojoCompiled.add(getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time));
+            histoPojoCompiled.add(histoPojo);
             //gets timeFrom histopojo and assigns to time
-            time = getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time).getTimeFrom();
+            time = histoPojo.getTimeFrom();
         }
         return histoPojoCompiled;
     }
