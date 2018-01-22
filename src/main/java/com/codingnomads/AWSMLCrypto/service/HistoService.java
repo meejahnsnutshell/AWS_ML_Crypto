@@ -2,11 +2,11 @@ package com.codingnomads.AWSMLCrypto.service;
 
 import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
 import com.codingnomads.AWSMLCrypto.model.*;
+//import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,21 +29,31 @@ public class HistoService {
      * Creates a generic historical data api call from cryptocompare.com depending on the parameters included
      * By default histohour is set as default historical data type, BTC is set as default fsym, USD is set as default tsym
      *
-     * @return Histopojo object from API call
+     * @param type          Type of  histodata call being made; histoday, histominute, histohour, default value histohour - required
+     * @param fsym          Name of From Symbol, default value BTC - required
+     * @param tsym          Name of To Symbol, default value USD -required
+     * @param e             Name of exchange, default value CCCAGG - required
+     * @param extraParams   Name of your application - optional
+     * @param sign          If set to true, the server will sign the requests. default value false - optional
+     * @param tryConversion If set to false, it will try to get values without using any conversion at all, default value true - optional
+     * @param aggregate    Number of aggregate to query by, default value 1 - optional
+     * @param limit         Limit of results to return - optional
+     * @param toTs          toTimestamp - optional
+     * @return              Histopojo object from API call
      */
     public HistoPojo getHistoData(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
-                                  Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData){
+                                  Boolean tryConversion, Integer aggregate, Integer limit, long toTs){
 
         //creates a new Arraylist of type Data to store new Data for insertion into database
         ArrayList<Data> newData = new ArrayList<Data>();
         //create a generic HistoDataCall based on parameters passed by API call
         GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
-                aggregate, limit, toTs, allData);
+                aggregate, limit, toTs);
         //domainParams creates a string url based on parameters passed in through API call and passes it to resttemplate call
         HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
         //checks data and separates out non existing data compared to DB into new data array
         newData = checkData(histoPojo.getData(), genericHistoCall.getFsym(), histoPojo.getTimeFrom(), histoPojo.getTimeTo());
-        //inserts new data into database
+//        inserts new data into database
         insertHistoData(newData, genericHistoCall.getFsym());
         return histoPojo;
     }
@@ -86,15 +96,16 @@ public class HistoService {
             for (Data item: data){
                 notInDB.add(item);
             }
-            System.out.println(notInDB.toString());
             return notInDB;
         }
         //if inDB contains data, checks all items in data against inDB for existing time stamps and changes boolean existInDB,
         else {
             for (Data item: data) {
                 boolean existInDB = false;
+                long itemTime = item.getUnixTime();
                 for (Data checkDB : inDB) {
-                    if (item.getUnixTime() == checkDB.getUnixTime()) {
+                    long checkDBTime = checkDB.getUnixTime();
+                    if (itemTime == checkDBTime) {
                         existInDB = true;
                         break;
                     }
@@ -121,10 +132,20 @@ public class HistoService {
     /**
      * This method is used after the initial getHisto call is made, to fill in missing data between the last
      * historical data point and the first data point of the real-time call.
-     * @return
+     * @param type          Type of  histodata call being made; histoday, histominute, histohour, default value histohour - required
+     * @param fsym          Name of From Symbol, default value BTC - required
+     * @param tsym          Name of To Symbol, default value USD -required
+     * @param e             Name of exchange, default value CCCAGG - required
+     * @param extraParams   Name of your application - optional
+     * @param sign          If set to true, the server will sign the requests. default value false - optional
+     * @param tryConversion If set to false, it will try to get values without using any conversion at all, default value true - optional
+     * @param aggregate    Number of aggregate to query by, default value 1 - optional
+     * @param limit         Limit of results to return - optional
+     * @param toTs          toTimestamp - optional
+     * @return              Histopojo object from API call
      */
     public HistoPojo getBackload(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
-                                 Boolean tryConversion, Integer aggregate, Integer limit, Timestamp toTs, Boolean allData) {
+                                 Boolean tryConversion, Integer aggregate, Integer limit, long toTs) {
         // get the most recent time that data was captured(in unixtime-seconds, convert to hours)
         long latestTime = (mapper.selectLatestTime()) / 3600;
         // get current time (in ms, convert to secs)
@@ -133,21 +154,9 @@ public class HistoService {
         long currentTimeHrs = currentTimeSec / 3600;
         // # of time increments between latest and current time (here we're using hrs)
         long timeDiff = (currentTimeHrs - latestTime);
-
-        GenericHistoCall genericHistoCall = new GenericHistoCall(type, fsym, tsym, e, extraParams, sign, tryConversion,
-                aggregate, limit, toTs, allData);
-        genericHistoCall.setLimit((int)timeDiff);
-        HistoPojo histoPojo = restTemplate.getForObject(genericHistoCall.domainParams(), HistoPojo.class);
-        ArrayList<Data> data = new ArrayList<Data>();
-        data = checkData(histoPojo.getData(), genericHistoCall.getFsym(), histoPojo.getTimeFrom(), histoPojo.getTimeTo());
-        insertHistoData(data, genericHistoCall.getFsym());
-
-//        // call the API w/ limit = timeDiff (this specifies # of time increments to go back and get)
-//        HistoPojo histoPojo = restTemplate.getForObject(
-//                domain + "histohour?fsym=BTC&tsym=USD&limit=" + timeDiff +"&aggregate=1&e=CCCAGG",
-//                HistoPojo.class);
-//        insertHistoData(histoPojo.getData());
-        return histoPojo;
+        // makes API call with requested parameters and sets limit to the timeDiff in hours
+        getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate,(int)timeDiff, toTs);
+        return getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate,(int)timeDiff, toTs);
     }
 
     /**
@@ -177,9 +186,11 @@ public class HistoService {
         //checks each value in hashmap data for coin name and compares to inDB arraylist
         for (Coin item : data.values()) {
             Boolean existInDB = false;
+            String itemName = item.getName();
             for (Coin checkDB : inDB) {
+                String checkDBName = checkDB.getName();
                 //if name exists in database sets existInDB true and breaks out of for loop
-                if (checkDB.getName()==item.getName()) {
+                if (checkDBName == itemName) {
                     existInDB = true;
                     break;
                 }
@@ -200,5 +211,50 @@ public class HistoService {
         for (Coin item : data){
             mapper.insertCoinInfo(item);
         }
+    }
+
+    /**
+     *  This method is used to backload at least a year's worth of data for the requested cryptocurrency.  Extra data will be
+     *  aggregated depending on the limit selected for results.  This method should be ran first to build initial database
+     *
+     * @param type          Type of  histodata call being made; histoday, histominute, histohour, default value histohour - required
+     * @param fsym          Name of From Symbol, default value BTC - required
+     * @param tsym          Name of To Symbol, default value USD -required
+     * @param e             Name of exchange, default value CCCAGG - required
+     * @param extraParams   Name of your application - optional
+     * @param sign          If set to true, the server will sign the requests. default value false - optional
+     * @param tryConversion If set to false, it will try to get values without using any conversion at all, default value true - optional
+     * @param aggregate    Number of aggregate to query by, default value 1 - optional
+     * @param limit         Limit of results to return - optional
+     * @param toTs          toTimestamp - optional
+     * @param year          Year(s) to change current year by for required backload of data, default value -1 (previous year)
+     * @return              Arraylist of each Histopojo object made for each API call until time achieved
+     *
+     */
+    public ArrayList<HistoPojo> getbackloadYear(String type, String fsym, String tsym, String e, String extraParams, Boolean sign,
+                             Boolean tryConversion, Integer aggregate, Integer limit, long toTs, int year){
+        //gets current calendar date
+        Calendar cal = Calendar.getInstance();
+        //gets current unixTime
+        long unixTimeCurrent = cal.getTime().getTime();
+        //adds year parameter change to current calendar year for time requested
+        cal.add(Calendar.YEAR, year);
+        //gets previous calendar date to unixtime
+        long unixTimePreviousYear = cal.getTime().getTime()/1000;
+        //new histopojo to store all data retrieved
+        ArrayList<HistoPojo> histoPojoCompiled = new ArrayList<>();
+        //sets time equal to current time
+        long time = unixTimeCurrent;
+        //while time is greater than previous year
+        while (time >= unixTimePreviousYear){
+            HistoPojo histoPojo = new HistoPojo();
+            //makes api call with given parameters
+            histoPojo = getHistoData(type, fsym, tsym, e, extraParams, sign, tryConversion, aggregate, limit, time);
+            //adds histopojo to arraylist
+            histoPojoCompiled.add(histoPojo);
+            //gets timeFrom histopojo and assigns to time
+            time = histoPojo.getTimeFrom();
+        }
+        return histoPojoCompiled;
     }
 }
