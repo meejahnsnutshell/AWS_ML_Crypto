@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by Meghan Boyce on 12/26/17
+ *
+ * POJO for a row in Predictions table before analyze method is called (does not include actual value
+ * & percent error).
  */
 
 public class PredictCustomPojo {
@@ -14,8 +17,6 @@ public class PredictCustomPojo {
     private double highValuePredict;
     private int coinId;
     private int time;
-//    private double highValueActual;
-//    private double pctError;
     private int modelTypeId;
     private String awsMLModelId;
 
@@ -69,22 +70,6 @@ public class PredictCustomPojo {
     public void setTime(int time) {
         this.time = time;
     }
-
-//    public double getHighValueActual() {
-//        return highValueActual;
-//    }
-//
-//    public void setHighValueActual(double highValueActual) {
-//        this.highValueActual = highValueActual;
-//    }
-//
-//    public double getPctError() {
-//        return pctError;
-//    }
-//
-//    public void setPctError(double pctError) {
-//        this.pctError = pctError;
-//    }
 
     public int getModelTypeId() {
         return modelTypeId;
