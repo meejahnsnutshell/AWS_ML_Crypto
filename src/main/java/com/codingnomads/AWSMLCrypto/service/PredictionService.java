@@ -3,7 +3,9 @@ package com.codingnomads.AWSMLCrypto.service;
 import com.amazonaws.services.machinelearning.AbstractAmazonMachineLearning;
 import com.amazonaws.services.machinelearning.AmazonMachineLearningClient;
 import com.amazonaws.services.machinelearning.model.*;
+import com.codingnomads.AWSMLCrypto.mapper.AnalyzeMapper;
 import com.codingnomads.AWSMLCrypto.mapper.TableMapper;
+import com.codingnomads.AWSMLCrypto.model.AnalyzeResult;
 import com.codingnomads.AWSMLCrypto.model.PredictCustomPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,9 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
     @Autowired
     TableMapper mapper;
+
+    @Autowired
+    AnalyzeMapper analyzeMapper;
 
     private String modelId = null;
     private String modelName = null;
@@ -154,7 +159,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
 
         // Get time for most recent data point
         int latestTime = mapper.selectLatestTime();
-        // Add 1 hour for prediction time
+        // Add 1 hour for prediction time - commenting out while we are 1 hr behind
         int predictionTimeInt = mapper.selectLatestTime() + 3600;
         // Select previous hour's closevalue
         String recordOpenValue = String.valueOf(mapper.selectCloseValueFromLatestEntry());
@@ -205,7 +210,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
      * highvalue to the actual highvalue once it is available.
      * @return double - percent error (accuracy) of hourly prediction
      */
-    public double analyzePrediction() {
+    public AnalyzeResult analyzePrediction() {
         // Get time for most recent prediction
         Integer predictHour = mapper.selectLatestPredictionTime();
 
@@ -228,7 +233,21 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         }
         // Insert pctError into predictions table
         mapper.updatePcterror(pctError, predictHour);
-        return pctError;
+
+        // Build AnalyzeResult object for nice JSON response display
+        AnalyzeResult analyzeResult = new AnalyzeResult();
+        analyzeResult.setId(analyzeMapper.getId(predictHour));
+        analyzeResult.setRequestDate(analyzeMapper.getRequestDate(predictHour));
+        analyzeResult.setAmznRequestId(analyzeMapper.getAmazonRequestId(predictHour));
+        analyzeResult.setHighValuePredict(predictValue);
+        analyzeResult.setCoinId(analyzeMapper.getCoinId(predictHour));
+        analyzeResult.setUnixTime(predictHour);
+        analyzeResult.setHighValueActual(actualValue);
+        analyzeResult.setPctError(pctError);
+        analyzeResult.setModelTypeId(analyzeMapper.getModelTypeId(predictHour));
+        analyzeResult.setAwsMLModelId(analyzeMapper.getAwsMlModelId(predictHour));
+
+        return analyzeResult;
     }
 
     /**
