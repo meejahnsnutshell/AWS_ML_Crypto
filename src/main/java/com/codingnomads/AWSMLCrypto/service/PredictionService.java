@@ -78,7 +78,6 @@ public class PredictionService extends AbstractAmazonMachineLearning {
                 // Refresh model status
                 model = getModel(modelRequest);
                 modelStatus = getModelStatus(model);
-                // todo test that this doesn't loop once more after becoming completed. I think it does.
                 if (modelStatus.equalsIgnoreCase("COMPLETED")){
                     System.out.println("Model status is " + modelStatus);
                 } else {
@@ -90,7 +89,7 @@ public class PredictionService extends AbstractAmazonMachineLearning {
         if (modelStatus.equalsIgnoreCase("COMPLETED")) {
             // Set the model Id for real time prediction request
             predictRequest.setMLModelId(modelId);
-            // Get the real time endpoint status // todo ensure that we get here now that we're using getModelStatus method (and not returning the entire model.)
+            // Get the real time endpoint status
             String endptStatus = getEndpointStatus(model);
 
             // Case where endpoint does not exist
@@ -133,6 +132,12 @@ public class PredictionService extends AbstractAmazonMachineLearning {
                     endptStatus = getEndpointStatus(model);
                     if (endptStatus.equalsIgnoreCase("ready")){
                         System.out.println("Endpoint status is " + endptStatus + "! You can now make real time predictions");
+                        // One more 5 sec sleep for safety
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.toString();
+                        }
                     } else {
                         System.out.println("Endpoint status is " + endptStatus + ". Checking again...");
                     }
