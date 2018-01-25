@@ -1,7 +1,5 @@
 package com.codingnomads.AWSMLCrypto.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Created by Meghan Boyce on 12/26/17
  *
@@ -11,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PredictCustomPojo {
 
-    private int id;
     private String requestDate;
     private String amznRequestId;
     private double highValuePredict;
@@ -21,14 +18,6 @@ public class PredictCustomPojo {
     private String awsMLModelId;
 
     public PredictCustomPojo() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getRequestDate() {
