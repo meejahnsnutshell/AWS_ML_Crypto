@@ -98,6 +98,7 @@ Model parameters that can be configured in the code:
 ```
 * Results
 Hourly ```highvalue``` prediction & evaluation
+
 ![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/predictionsScreenShot.png)
 
 
@@ -111,7 +112,7 @@ Shell scripts can be set with ```crontab -e ``` to continuously get new data and
 2 * * * * sh /path/to/predict.sh <modelId> <modelName>
 3 * * * * sh /path/to/analyze.sh 
 ```
-* Note that timing is important. The scripts should be staggered and bot should not be run on the hour. Analyze must 
+Note that timing is important. The scripts should be staggered and bot should not be run on the hour. Analyze must 
 wait for the known value of the prediction to be received (analysis for a prediction made for 4PM can't be run until 
 after 4PM.
 
