@@ -4,7 +4,7 @@ AWS_ML_Crypto is a Spring-based RESTful API written in Java that gets & stores h
 uses that data to make price predictions.  
 AWS_ML_Crypto utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#), [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
 
-Using an hourly cronjob, this API continuously stores new data, predicts future values, and evaluates its predictions.
+Using cron & the provided shell scripts, the user may continuously store new data, predict future values, and evaluate predictions.
 
 Please note: This API is in active development.
  
@@ -34,11 +34,11 @@ Avoid unnecessary charges by disabling services after use.
 and password.
 
 * Follow [these](https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-using-workbench.html) instructions to connect 
-Workbench/J to your Redshift cluster.
+Workbench/J to your Redshift cluster. [Build your tables.](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/master/build_tables.sql)
 
 ## Loading Historical Data
 
-* [Cryptocompare API](https://www.cryptocompare.com/api/#-api-data-) is source for historical data of current cryptocurrency 
+* [Cryptocompare API](https://www.cryptocompare.com/api/#-api-data-) is the source for historical data of current cryptocurrency 
 pricing. All API calls for aggregating and loading data are within the HistoController.  Calls that can be made include "data",  
 "backload", "backloadYear", and "coin". "coin" should be run first to populate data tables for coin list before "backloadYear"
 is used to backload the data for cryptocurrency wanted.
@@ -70,13 +70,13 @@ will be entered.
 /histo/backloadYear?type=histohour&fsym=BTC&tsym=USD&e=CCCAGG&limit=500&year=-1
 ```
 
-* Coin API calls will get all current cryptocurrency listed on Cryptocompare and will insert any new currency into the database.
+* Coin API calls will get all current cryptocurrency listed on Cryptocompare and will insert any new currency into the 
+database.
 
 ## Making Predictions
 
-* Using the AWS console, ensure you have a datasource (which is data that AWS exports from your Redshift db to an S3 
-bucket) available for your machine learning model. Models can be created programatically or via the console - both use 
-an existing datasource.  
+* Create a datasource in the AWS console (data is exported from Redshift to S3) for your machine learning model. Models 
+can be created programmatically or via the console - both require an existing datasource.  
 
 * To programatically create a model, set createmodel=true. Optional: modelId=xxxx&modelName=xxxx. Id and name are 
 generated if not provided. Ex URIs:
@@ -88,16 +88,12 @@ or
 .../predict/realtime?createmodel=true
 ```
 Model parameters may be configured in the code:
-[insert screenshot]
+
+![ModelParamsScreenShot](http://path/to/image/on/github)
 
 * To use an existing model, provide id and name.
 ```
 .../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
-```
-
-* Make a prediction HTTP call. For example, using an existing model: 
-```
-.../predict/realtime?modelid=1234&modelname=model1234
 ```
 
 ## Contributors
