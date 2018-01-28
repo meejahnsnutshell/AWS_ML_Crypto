@@ -89,7 +89,7 @@ or
 ```
 Model parameters may be configured in the code:
 
-![ModelParamsScreenShot](http://path/to/image/on/github)
+![ModelParamsScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/modelParamsScreenShot.png)
 
 * To use an existing model, provide id and name.
 ```
