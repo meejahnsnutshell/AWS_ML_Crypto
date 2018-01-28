@@ -95,16 +95,24 @@ Model parameters may be configured in the code:
 ```
 .../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
 ```
+* Results
+![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/predictionsScreenShot.png)
+
+
 ## Automation
 
 Shell scripts can be set with ```crontab -e ``` to continuously get new data and make and analyze predictions.
 
 * Ex hourly:
 ```
-* * * * * sh /path/to/bot.sh 
-1 * * * * sh /path/to/predict.sh <modelId> <modelName>
-2 * * * * sh /path/to/analyze.sh 
+1 * * * * sh /path/to/bot.sh 
+2 * * * * sh /path/to/predict.sh <modelId> <modelName>
+3 * * * * sh /path/to/analyze.sh 
 ```
+* Note that timing is important. The scripts should be staggered and bot should not be run on the hour. Analyze must 
+wait for the known value of the prediction to be received (analysis for a prediction made for 4PM can't be run until 
+after 4PM.
+
 ## Contributors
 * [Jialor Cheung](https://github.com/PopoPenguin)
 * [Meghan Boyce](https://github.com/meejahnsnutshell)
