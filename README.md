@@ -97,7 +97,7 @@ Model parameters may be configured in the code:
 ```
 ## Automation
 
-Shell scripts can be set with ```crontab -e ```
+Shell scripts can be set with ```crontab -e ``` to continuously get new data and make and analyze predictions.
 
 * Ex hourly:
 ```
