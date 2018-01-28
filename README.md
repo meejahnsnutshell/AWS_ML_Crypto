@@ -97,6 +97,7 @@ Model parameters that can be configured in the code:
 .../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
 ```
 * Results
+
 Hourly ```highvalue``` prediction & evaluation
 
 ![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/predictionsScreenShot.png)
