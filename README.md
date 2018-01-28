@@ -95,7 +95,16 @@ Model parameters may be configured in the code:
 ```
 .../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
 ```
+## Automation
 
+Shell scripts can be set with ```crontab -e ```
+
+* Ex hourly:
+```
+* * * * * sh /path/to/bot.sh 
+1 * * * * sh /path/to/predict.sh <modelId> <modelName>
+2 * * * * sh /path/to/analyze.sh 
+```
 ## Contributors
 * [Jialor Cheung](https://github.com/PopoPenguin)
 * [Meghan Boyce](https://github.com/meejahnsnutshell)
