@@ -75,10 +75,11 @@ database.
 
 ## Making Predictions
 
-* Create a datasource in the AWS console (data is exported from Redshift to S3) for your machine learning model. Models 
-can be created programmatically or via the console - both require an existing datasource.  
+An AWS Machine Learning model is required to make a prediction. Models can be created in the AWS console (high customization)
+qor programmatically (limited customization), but both require an existing datasource. Query parameters are ```createmodel```,
+```modelId``` and ```modelName```. 
 
-* To programatically create a model, set createmodel=true. Optional: modelId=xxxx&modelName=xxxx. Id and name are 
+* To programmatically create a model, createmodel=true. Optional: modelId=xxxx&modelName=xxxx. Id and name are 
 generated if not provided. Ex URIs:
 ```
 .../predict/realtime?createmodel=true&modelId=1234&modelName=MyModel
@@ -87,7 +88,7 @@ or
 ```
 .../predict/realtime?createmodel=true
 ```
-Model parameters may be configured in the code:
+Model parameters that can be configured in the code:
 
 ![ModelParamsScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/modelParamsScreenShot.png)
 
@@ -96,6 +97,7 @@ Model parameters may be configured in the code:
 .../predict/realtime?createmodel=false&modelid=1234&modelname=MyModel
 ```
 * Results
+Hourly ```highvalue``` prediction & evaluation
 ![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/meghan_predict_cronjob/images/predictionsScreenShot.png)
 
 
