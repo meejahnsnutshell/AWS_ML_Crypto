@@ -1,9 +1,9 @@
 # AWS_ML_Crypto
 
-AWS_ML_Crypto is a Spring-based RESTful API written in Java that gets & stores historical cryptocurrency pricing. It then
-uses that data to make price predictions.  
-AWS_ML_Crypto utilizes a number of third-party tools to accomplish this, including [CrytoCompare API](https://www.cryptocompare.com/api/#), [AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) [Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html).
-
+AWS_ML_Crypto is a Spring-based JSON API written in Java that gets & stores historical cryptocurrency pricing and makes 
+predictions predictions based on that data. This app utilizes a number of third-party tools, including [CrytoCompare API](https://www.cryptocompare.com/api/#), 
+[AWS SDK for Java](https://aws.amazon.com/sdk-for-java/), [AWS Redshift](hhttps://aws.amazon.com/redshift/) & [AWS Machine Learning](https://aws.amazon.com/machine-learning/) 
+[Real Time Predictions](https://docs.aws.amazon.com/machine-learning/latest/dg/requesting-real-time-predictions.html). 
 Using cron & the provided shell scripts, the user may continuously store new data, predict future values, and evaluate predictions.
 
 Please note: This API is in active development.
