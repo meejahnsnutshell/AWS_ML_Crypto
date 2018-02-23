@@ -90,7 +90,7 @@ or
 ```
 Model parameters that can be configured in the code:
 
-![ModelParamsScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/images/modelParamsScreenShot.png)
+![ModelParamsScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/master/images/modelParamsScreenShot.png)
 
 * To use an existing model, provide id and name.
 ```
@@ -100,7 +100,7 @@ Model parameters that can be configured in the code:
 
 Hourly ```highvalue``` prediction & evaluation
 
-![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/images/predictionsScreenShot.png)
+![PredictionsTableScreenShot](https://github.com/meejahnsnutshell/AWS_ML_Crypto/blob/master/images/predictionsScreenShot.png)
 
 
 ## Automation
